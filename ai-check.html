@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Content Check – TrueWrite Scan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- jsPDF for report generation (no integrity) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-violet-950 text-white min-h-screen flex flex-col">
+
+  <!-- Glow background -->
+  <div class="pointer-events-none fixed inset-0 opacity-40 blur-3xl"
+       style="background: radial-gradient(circle at 10% 20%, rgba(174, 101, 241, 0.35), transparent 55%), radial-gradient(circle at 80% 80%, rgba(56,189,248,0.28), transparent 55%);">
+  </div>
+
+  <main class="relative flex-1 max-w-6xl mx-auto px-4 py-8 z-10">
+    <!-- Top bar -->
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-3">
+        <div>
+          <img src="logo.png" alt="TrueWrite Scan Logo" class="w-10 h-10 rounded-xl shadow-lg shadow-indigo-500/40">
+        </div>
+        <div>
+          <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">
+            TrueWrite <span class="text-fuchsia-400">Scan</span>
+          </h1>
+          <p class="text-[11px] text-slate-300 uppercase tracking-[0.25em]">
+            AI-Content Detector
+          </p>
+        </div>
+      </div>
+      <a href="dashboard.html"
+         class="text-xs text-slate-200 px-3 py-1.5 rounded-full border border-slate-600/70 bg-slate-900/40 backdrop-blur hover:bg-slate-800/70 transition">
+        ← Back to dashboard
+      </a>
+    </div>
+
+    <!-- Tool navigation -->
+    <nav class="mb-6">
+      <div class="inline-flex items-center gap-1 rounded-full bg-slate-900/80 border border-slate-800 p-1 text-xs">
+        <a href="grammar.html"
+           class="px-3 py-1.5 rounded-full text-slate-300 hover:bg-slate-800">
+          Grammar
+        </a>
+        <a href="plagiarism.html"
+           class="px-3 py-1.5 rounded-full text-slate-300 hover:bg-slate-800">
+          Plagiarism
+        </a>
+        <a href="ai-check.html"
+           class="px-3 py-1.5 rounded-full bg-fuchsia-500 text-white font-medium shadow shadow-fuchsia-500/40"
+           aria-current="page">
+          AI Content
+        </a>
+      </div>
+    </nav>
+
+    <!-- Glass main card -->
+    <div class="grid md:grid-cols-2 gap-6">
+      <!-- LEFT PANEL -->
+      <section class="rounded-3xl border border-white/10 bg-slate-900/40 backdrop-blur-xl shadow-2xl shadow-black/50 p-5 md:p-6 flex flex-col">
+        <header class="mb-4">
+          <h2 class="text-lg md:text-xl font-semibold">Analyze your content</h2>
+          <p class="text-xs text-slate-300 mt-1">
+            Paste text or drop a <span class="font-semibold">.txt / .pdf / .docx</span> file. We’ll estimate how AI-generated it looks.
+          </p>
+        </header>
+
+        <!-- Drag & Drop zone -->
+        <div id="dropZone"
+             class="mb-3 border-2 border-dashed border-slate-600/80 rounded-2xl bg-slate-900/50 backdrop-blur-md px-4 py-3 text-xs flex items-center justify-between transition hover:border-fuchsia-400/80 hover:bg-slate-900/70">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-slate-800/80 flex items-center justify-center">
+              <span class="text-lg">📂</span>
+            </div>
+            <div>
+              <p class="font-medium text-slate-100">Drag & drop your file here</p>
+              <p class="text-[11px] text-slate-400">
+                Supported: .txt, .pdf, .docx (max 15MB)
+              </p>
+            </div>
+          </div>
+          <div class="flex flex-col items-end gap-1">
+            <label class="px-3 py-1 rounded-full border border-slate-500/80 text-[11px] cursor-pointer bg-slate-800/60 hover:bg-slate-700/80">
+              Browse
+              <input id="fileInput" type="file" accept=".txt,.pdf,.docx" class="hidden" />
+            </label>
+            <span id="fileName" class="text-[10px] text-slate-400 max-w-[150px] truncate"></span>
+          </div>
+        </div>
+
+        <!-- Tiny status -->
+        <div id="statusTiny" class="text-[11px] text-slate-400 mb-2">
+          Ready · No file selected
+        </div>
+
+        <!-- Paste / textarea -->
+        <div class="flex gap-2 items-center mb-2">
+          <button id="pasteBtn"
+                  class="text-[11px] px-3 py-1 rounded-full border border-slate-600/80 bg-slate-900/70 hover:bg-slate-800/90">
+            Paste text from clipboard
+          </button>
+          <span class="text-[11px] text-slate-500">or type directly below</span>
+        </div>
+
+        <textarea id="inputText" rows="12"
+                  class="flex-1 w-full rounded-2xl bg-slate-950/70 border border-slate-700/80 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-500/70 focus:border-fuchsia-500/60 placeholder:text-slate-500"
+                  placeholder="Paste your content here or use the drag-and-drop box above..."></textarea>
+
+        <!-- Buttons -->
+        <div class="mt-4 flex flex-wrap gap-2 items-center">
+          <button id="checkAI"
+                  class="px-5 py-2 rounded-xl bg-gradient-to-r from-fuchsia-500 via-violet-500 to-sky-400 hover:brightness-110 text-sm font-semibold shadow-lg shadow-fuchsia-500/40 flex items-center gap-2">
+            <svg id="spinner"
+                 class="hidden animate-spin h-4 w-4 text-white"
+                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10"
+                      stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+            <span id="checkLabel">Check AI Content</span>
+          </button>
+
+          <button id="downloadReport"
+                  class="px-5 py-2 rounded-xl bg-slate-900/70 border border-slate-600/80 text-sm font-medium hover:bg-slate-800/90">
+            Download report as PDF
+          </button>
+        </div>
+      </section>
+
+      <!-- RIGHT PANEL -->
+      <section class="rounded-3xl border border-white/10 bg-slate-900/40 backdrop-blur-xl shadow-2xl shadow-black/50 p-5 md:p-6 flex flex-col">
+        <header class="mb-3">
+          <h2 class="text-lg font-semibold">Detection result</h2>
+          <p class="text-[11px] text-slate-400">
+            Scores are estimates – always review with your own judgment.
+          </p>
+        </header>
+
+        <!-- Progress bar -->
+        <div class="mb-3">
+          <div class="h-1.5 w-full rounded-full bg-slate-800/80 overflow-hidden">
+            <div id="progressBar" class="h-full w-0 bg-gradient-to-r from-fuchsia-400 via-violet-400 to-sky-400 transition-[width] duration-200 ease-out"></div>
+          </div>
+          <div id="progressText" class="text-[11px] text-slate-400 mt-1">Idle</div>
+        </div>
+
+        <!-- Main result -->
+        <div class="flex-1 rounded-2xl bg-slate-950/60 border border-slate-800/80 p-4 text-sm">
+          <p id="score" class="text-xl font-bold mb-1 text-fuchsia-300">
+            No scan yet.
+          </p>
+          <p id="detail" class="text-[13px] text-slate-200 mb-3">
+            Paste text or upload a file, then click “Check AI Content”.
+          </p>
+
+          <div id="meta" class="text-[11px] text-slate-400 space-y-1">
+            <!-- Filled by JS -->
+          </div>
+        </div>
+
+        <!-- Mini legend -->
+        <div class="mt-4 grid grid-cols-2 gap-3 text-[11px] text-slate-300">
+          <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3">
+            <p class="font-semibold mb-1">Model-based detection</p>
+            <p>Uses a RoBERTa classifier when available. Falls back to heuristic if model load fails.</p>
+          </div>
+          <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3">
+            <p class="font-semibold mb-1">Saved in history</p>
+            <p>Every scan is logged in your <span class="font-semibold">My History</span> for future reference.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Extra sections from second file -->
+    <section class="mt-10 space-y-4">
+      <h2 class="text-xl md:text-2xl font-semibold">Why choose this AI content checker?</h2>
+      <p class="text-sm text-slate-300">
+        With AI writing everywhere, this page helps you quickly see how “machine-like” your text may look.
+      </p>
+
+      <div class="grid md:grid-cols-3 gap-5 mt-3">
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 text-xs">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-fuchsia-500/20 flex items-center justify-center">
+              <span class="text-lg">📈</span>
+            </div>
+            <p class="font-semibold text-sm">Instant AI probability</p>
+          </div>
+          <p>
+            Get an estimated AI-generated probability (%) along with the opposite human-written score.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 text-xs">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-indigo-500/20 flex items-center justify-center">
+              <span class="text-lg">🔍</span>
+            </div>
+            <p class="font-semibold text-sm">Transparent heuristics</p>
+          </div>
+          <p>
+            Uses simple, explainable metrics like sentence length and vocabulary variety — great for demos.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 text-xs">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-emerald-500/20 flex items-center justify-center">
+              <span class="text-lg">📄</span>
+            </div>
+            <p class="font-semibold text-sm">Downloadable PDF</p>
+          </div>
+          <p>
+            Save the AI-analysis result as a PDF snapshot along with your text.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-10 space-y-4">
+      <h2 class="text-xl md:text-2xl font-semibold">Who can use this tool?</h2>
+      <p class="text-sm text-slate-300">
+        Ideal for anyone curious about AI detection or building their own detector interface.
+      </p>
+
+      <div class="grid md:grid-cols-3 gap-5 mt-3 text-xs">
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-sky-500/20 flex items-center justify-center">
+              <span class="text-lg">🎓</span>
+            </div>
+            <p class="font-semibold text-sm">Students & researchers</p>
+          </div>
+          <p>
+            Test your assignments or papers and see how “AI-like” they appear based on simple rules.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-amber-500/20 flex items-center justify-center">
+              <span class="text-lg">🧑‍🏫</span>
+            </div>
+            <p class="font-semibold text-sm">Teachers & trainers</p>
+          </div>
+          <p>
+            Show learners how AI detection can be approximated using simple statistics on text.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-rose-500/20 flex items-center justify-center">
+              <span class="text-lg">💻</span>
+            </div>
+            <p class="font-semibold text-sm">Developers & hobbyists</p>
+          </div>
+          <p>
+            Use this as a frontend template and plug in your own backend AI-detection models later.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-10 space-y-4">
+      <h2 class="text-xl md:text-2xl font-semibold">How does this AI content checker work?</h2>
+      <p class="text-sm text-slate-300">
+        The scoring is intentionally simple, so you can read the JavaScript and fully understand it.
+      </p>
+
+      <div class="grid md:grid-cols-3 gap-5 mt-3 text-xs">
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-fuchsia-500/20 flex items-center justify-center">
+              <span class="text-lg">1️⃣</span>
+            </div>
+            <p class="font-semibold text-sm">Tokenise the text</p>
+          </div>
+          <p>
+            Text is lower-cased and split into words and sentences for basic statistics.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-indigo-500/20 flex items-center justify-center">
+              <span class="text-lg">2️⃣</span>
+            </div>
+            <p class="font-semibold text-sm">Measure patterns</p>
+          </div>
+          <p>
+            It looks at vocabulary variety and average sentence length — long, repetitive text can
+            look more AI-like.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-emerald-500/20 flex items-center justify-center">
+              <span class="text-lg">3️⃣</span>
+            </div>
+            <p class="font-semibold text-sm">Compute a score</p>
+          </div>
+          <p>
+            Those metrics are combined into an AI-generated probability (0–100%), displayed and
+            saved in your PDF report.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-12">
+      <h2 class="text-xl md:text-2xl font-semibold mb-3">Reviews for this AI checker</h2>
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 md:p-6 relative overflow-hidden">
+        <div id="reviewCard" class="transition-all duration-500"></div>
+
+        <div class="flex items-center justify-between mt-4">
+          <div id="reviewDots" class="flex gap-1.5"></div>
+          <div class="flex gap-2">
+            <button id="prevReview"
+                    class="w-8 h-8 rounded-full border border-slate-600 flex items-center justify-center text-xs hover:bg-slate-800">‹</button>
+            <button id="nextReview"
+                    class="w-8 h-8 rounded-full border border-slate-600 flex items-center justify-center text-xs hover:bg-slate-800">›</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="relative border-t border-slate-800 bg-slate-950/80 backdrop-blur">
+    <div class="max-w-6xl mx-auto px-4 py-4 text-[11px] text-slate-400 flex flex-col md:flex-row items-center justify-between gap-2">
+      <p>© 2025 TrueWrite Scan. All rights reserved.</p>
+      <p>Designed & developed by <span class="text-fuchsia-300 font-medium">Gopal Krushna Mahapatra</span>.</p>
+    </div>
+  </footer>
+
+  <!-- SCRIPT -->
+  <script>
+    const BACKEND_URL = "http://localhost:8000";
+    const token = localStorage.getItem("truewriteToken");
+    const user = localStorage.getItem("truewriteUser");
+    if (!token || !user) {
+      window.location.href = "login.html";
+    }
+
+    // jsPDF helper
+    function getJsPDF() {
+      if (window.jspdf && window.jspdf.jsPDF) return window.jspdf.jsPDF;
+      if (window.jsPDF) return window.jsPDF;
+      alert("PDF library (jsPDF) did not load. Check your internet connection or CDN access.");
+      return null;
+    }
+
+    // DOM references
+    const textarea = document.getElementById("inputText");
+    const fileInput = document.getElementById("fileInput");
+    const fileNameSpan = document.getElementById("fileName");
+    const pasteBtn = document.getElementById("pasteBtn");
+    const statusTiny = document.getElementById("statusTiny");
+    const checkBtn = document.getElementById("checkAI");
+    const checkLabel = document.getElementById("checkLabel");
+    const spinner = document.getElementById("spinner");
+    const scoreP = document.getElementById("score");
+    const detailP = document.getElementById("detail");
+    const metaDiv = document.getElementById("meta");
+    const downloadBtn = document.getElementById("downloadReport");
+    const dropZone = document.getElementById("dropZone");
+    const progressBar = document.getElementById("progressBar");
+    const progressText = document.getElementById("progressText");
+
+    let lastResult = null;
+    let progressTimer = null;
+
+    function setLoading(on) {
+      if (on) {
+        spinner.classList.remove("hidden");
+        checkLabel.textContent = "Analyzing...";
+        checkBtn.disabled = true;
+        checkBtn.classList.add("opacity-60", "cursor-not-allowed");
+
+        let pct = 0;
+        progressBar.style.width = "0%";
+        progressText.textContent = "Uploading / processing...";
+        progressTimer = setInterval(() => {
+          pct += Math.random() * 10;
+          if (pct > 90) pct = 90;
+          progressBar.style.width = pct + "%";
+        }, 200);
+      } else {
+        spinner.classList.add("hidden");
+        checkLabel.textContent = "Check AI Content";
+        checkBtn.disabled = false;
+        checkBtn.classList.remove("opacity-60", "cursor-not-allowed");
+        if (progressTimer) {
+          clearInterval(progressTimer);
+          progressTimer = null;
+        }
+        progressBar.style.width = "100%";
+        progressText.textContent = "Done";
+        setTimeout(() => {
+          progressBar.style.width = "0%";
+          progressText.textContent = "Idle";
+        }, 700);
+      }
+    }
+
+    // Drag & drop handlers
+    ["dragenter", "dragover"].forEach(evt => {
+      dropZone.addEventListener(evt, e => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.add("border-fuchsia-400/80", "bg-slate-900/80");
+      });
+    });
+
+    ["dragleave", "drop"].forEach(evt => {
+      dropZone.addEventListener(evt, e => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove("border-fuchsia-400/80", "bg-slate-900/80");
+      });
+    });
+
+    dropZone.addEventListener("drop", e => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (!files || !files.length) return;
+      const file = files[0];
+      fileInput.files = files;
+      handleFileSelected(file);
+    });
+
+    // File selection via button
+    fileInput.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) {
+        fileNameSpan.textContent = "";
+        statusTiny.textContent = "Ready · No file selected";
+        return;
+      }
+      handleFileSelected(file);
+    });
+
+    function handleFileSelected(file) {
+      fileNameSpan.textContent = file.name;
+
+      if (file.type === "text/plain" || file.name.toLowerCase().endsWith(".txt")) {
+        const reader = new FileReader();
+        reader.onload = () => textarea.value = reader.result;
+        reader.readAsText(file);
+        statusTiny.textContent = `${file.name} loaded as text`;
+      } else {
+        textarea.value = "";
+        statusTiny.textContent = `${file.name} selected. Will be parsed on backend.`;
+      }
+    }
+
+    // Paste button
+    pasteBtn.onclick = async () => {
+      try {
+        const txt = await navigator.clipboard.readText();
+        textarea.value = txt;
+        statusTiny.textContent = "Text pasted from clipboard";
+      } catch {
+        alert("Clipboard access blocked by browser.");
+      }
+    };
+
+    async function callAiCheck(text) {
+      const res = await fetch(`${BACKEND_URL}/api/ai-check`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ text })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || data.error || "Server error");
+      return data;
+    }
+
+    async function uploadFileAndCheck(file) {
+      const form = new FormData();
+      form.append("file", file, file.name);
+      const res = await fetch(`${BACKEND_URL}/api/ai-check-file`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` },
+        body: form
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || data.error || "Server error");
+      return data;
+    }
+
+    // Main check
+    checkBtn.onclick = async () => {
+      const text = textarea.value.trim();
+      const file = fileInput.files[0];
+
+      if (!text && !file) {
+        alert("Please paste text or upload a file first.");
+        return;
+      }
+
+      setLoading(true);
+      scoreP.textContent = "Analyzing...";
+      detailP.textContent = "Contacting backend...";
+      metaDiv.innerHTML = "";
+      lastResult = null;
+
+      try {
+        let data;
+        if (file) data = await uploadFileAndCheck(file);
+        else data = await callAiCheck(text);
+
+        const ai = data.ai_percent ?? 0;
+        const human = data.human_percent ?? (100 - ai);
+        const wc = data.word_count ?? 0;
+        const avg = data.avg_sentence_length ?? null;
+        const summary = data.summary ?? "";
+
+        scoreP.textContent = `AI probability: ${ai}% · Human: ${human}%`;
+        detailP.textContent = summary || (ai > 60
+          ? `Text appears more AI-like (human ~${human}%).`
+          : `Text appears more human-like (human ~${human}%).`
+        );
+
+        metaDiv.innerHTML = `
+          <div>Words: <strong>${wc}</strong></div>
+          ${avg !== null ? `<div>Avg sentence length: <strong>${avg}</strong></div>` : ""}
+          ${data.unique_ratio !== undefined ? `<div>Unique word ratio: <strong>${data.unique_ratio}</strong></div>` : ""}
+          <div class="mt-1 text-[10px] text-slate-500">This scan is stored in your history.</div>
+        `;
+
+        lastResult = {
+          ai_percent: ai,
+          human_percent: human,
+          word_count: wc,
+          avg_sentence_length: avg,
+          summary,
+          text: textarea.value
+        };
+      } catch (err) {
+        console.error(err);
+        scoreP.textContent = "Error";
+        detailP.textContent = err.message || "Failed to contact backend.";
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // PDF download
+    downloadBtn.onclick = () => {
+      if (!lastResult) {
+        alert("Run at least one scan before downloading a report.");
+        return;
+      }
+
+      const jsPDF = getJsPDF();
+      if (!jsPDF) return;
+
+      const doc = new jsPDF({ unit: "pt", format: "a4" });
+
+      let y = 40;
+      doc.setFontSize(16);
+      doc.text("TrueWrite Scan — AI Content Report", 40, y); y += 22;
+
+      doc.setFontSize(11);
+      doc.text("Generated: " + new Date().toLocaleString(), 40, y); y += 18;
+      doc.text("User: " + (user || "N/A"), 40, y); y += 18;
+
+      doc.setFontSize(12);
+      doc.text(`AI probability: ${lastResult.ai_percent}%`, 40, y); y += 16;
+      doc.text(`Human probability: ${lastResult.human_percent}%`, 40, y); y += 16;
+      doc.text(`Word count: ${lastResult.word_count}`, 40, y); y += 18;
+
+      if (lastResult.avg_sentence_length !== null && lastResult.avg_sentence_length !== undefined) {
+        doc.text(`Avg sentence length: ${lastResult.avg_sentence_length}`, 40, y); y += 18;
+      }
+
+      if (lastResult.summary) {
+        doc.text("Summary:", 40, y); y += 16;
+        doc.setFontSize(10);
+        const lines = doc.splitTextToSize(lastResult.summary, 520);
+        doc.text(lines, 40, y);
+        y += lines.length * 12 + 10;
+      }
+
+      doc.setFontSize(11);
+      doc.text("--- Original text (truncated) ---", 40, y); y += 18;
+      const original = lastResult.text || "";
+      const truncated = original.length > 4000 ? original.slice(0, 4000) + "\n\n[TRUNCATED]" : original;
+      const textLines = doc.splitTextToSize(truncated, 520);
+      doc.setFontSize(10);
+      doc.text(textLines, 40, y);
+
+      doc.save("truewrite-ai-report.pdf");
+    };
+
+    // Reviews slider
+    const reviews = [
+      {
+        name: "Aarav S.",
+        role: "B.Tech Student",
+        text: "Helps me understand how AI-generated my project reports might look before submission.",
+        stars: 5
+      },
+      {
+        name: "Priya K.",
+        role: "AI Research Enthusiast",
+        text: "The transparent scoring is perfect for explaining AI detection concepts to juniors.",
+        stars: 5
+      },
+      {
+        name: "Rahul M.",
+        role: "Content Creator",
+        text: "Gives a quick signal when my text feels too uniform and AI-like.",
+        stars: 4
+      },
+      {
+        name: "Sneha R.",
+        role: "M.Sc. Student",
+        text: "Very handy example for my seminar on AI ethics and content authenticity.",
+        stars: 5
+      },
+      {
+        name: "Vikram J.",
+        role: "Developer",
+        text: "Exactly the kind of simple, hackable AI-detector UI I wanted for my side project.",
+        stars: 4
+      }
+    ];
+
+    let currentReview = 0;
+    const reviewCard = document.getElementById("reviewCard");
+    const reviewDots = document.getElementById("reviewDots");
+
+    function starRow(stars) {
+      let html = "";
+      for (let i = 0; i < 5; i++) {
+        html += `<span class="${i < stars ? 'text-yellow-400' : 'text-slate-600'} text-sm">★</span>`;
+      }
+      return html;
+    }
+
+    function renderReview() {
+      const r = reviews[currentReview];
+      reviewCard.innerHTML = `
+        <div class="flex items-center gap-2 mb-2">
+          ${starRow(r.stars)}
+        </div>
+        <p class="text-sm text-slate-200 mb-3">"${r.text}"</p>
+        <p class="text-sm font-semibold">${r.name}</p>
+        <p class="text-xs text-slate-400">${r.role}</p>
+      `;
+      reviewDots.innerHTML = reviews.map((_, i) =>
+        `<span class="w-2 h-2 rounded-full ${i === currentReview ? 'bg-fuchsia-400' : 'bg-slate-600'}"></span>`
+      ).join('');
+    }
+
+    function nextReview() {
+      currentReview = (currentReview + 1) % reviews.length;
+      renderReview();
+    }
+
+    function prevReview() {
+      currentReview = (currentReview - 1 + reviews.length) % reviews.length;
+      renderReview();
+    }
+
+    document.getElementById('nextReview').onclick = nextReview;
+    document.getElementById('prevReview').onclick = prevReview;
+
+    let timer = setInterval(nextReview, 6000);
+    document.getElementById('nextReview').addEventListener('click', () => {
+      clearInterval(timer); timer = setInterval(nextReview, 6000);
+    });
+    document.getElementById('prevReview').addEventListener('click', () => {
+      clearInterval(timer); timer = setInterval(nextReview, 6000);
+    });
+
+    renderReview();
+  </script>
+</body>
+</html>

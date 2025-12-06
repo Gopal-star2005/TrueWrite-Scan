@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My History – TrueWrite Scan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex flex-col">
+  <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-20">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="images/logo.png" alt="TrueWrite Scan logo"
+             class="w-9 h-9 rounded-2xl border border-slate-700 object-cover" />
+        <div>
+          <p class="text-lg md:text-xl font-extrabold tracking-tight">
+            <span class="bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-emerald-400 bg-clip-text text-transparent">
+              TrueWrite
+            </span> History
+          </p>
+          <p class="text-[11px] text-slate-400 uppercase tracking-[0.22em]">
+            Recent grammar, plagiarism & AI scans
+          </p>
+        </div>
+      </div>
+      <a href="dashboard.html"
+         class="text-xs px-3 py-1 rounded-full border border-slate-600 hover:bg-slate-800">
+        ← Back to dashboard
+      </a>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl mx-auto px-4 py-8">
+    <h1 class="text-xl md:text-2xl font-semibold mb-3">My scan history</h1>
+    <p class="text-sm text-slate-300 mb-4">
+      Each entry represents one run of Grammar, Plagiarism, or AI content check. Stored per account
+      on the backend using SQLite.
+    </p>
+
+    <div id="historyContainer"
+         class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 text-sm">
+      <p id="loading" class="text-xs text-slate-400">Loading history...</p>
+      <table id="historyTable" class="w-full text-xs hidden">
+        <thead class="border-b border-slate-800 text-slate-400">
+          <tr>
+            <th class="py-2 text-left">Time (UTC)</th>
+            <th class="py-2 text-left">Tool</th>
+            <th class="py-2 text-left">Summary</th>
+            <th class="py-2 text-left">Snippet</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody" class="divide-y divide-slate-800"></tbody>
+      </table>
+      <p id="emptyMsg" class="text-xs text-slate-400 hidden">No history yet. Run a check to see it here.</p>
+    </div>
+  </main>
+
+  <footer class="border-t border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 py-4 text-[11px] text-slate-400 flex flex-col md:flex-row items-center justify-between gap-2">
+      <p>© 2025 TrueWrite Scan. All rights reserved.</p>
+      <p>Designed & developed by <span class="text-indigo-300 font-medium">Gopal Krushna Mahapatra</span>.</p>
+    </div>
+  </footer>
+
+  <script>
+    const BACKEND_URL = "http://localhost:8000";
+    const token = localStorage.getItem("truewriteToken");
+    const user = localStorage.getItem("truewriteUser");
+    if (!token || !user) {
+      window.location.href = "login.html";
+    }
+
+    const loading = document.getElementById("loading");
+    const table = document.getElementById("historyTable");
+    const bodyEl = document.getElementById("historyBody");
+    const emptyMsg = document.getElementById("emptyMsg");
+
+    async function loadHistory() {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/history`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          loading.textContent = data.detail || "Failed to load history.";
+          return;
+        }
+
+        const items = data.items || [];
+        if (items.length === 0) {
+          loading.classList.add("hidden");
+          emptyMsg.classList.remove("hidden");
+          return;
+        }
+
+        bodyEl.innerHTML = items.map(item => {
+          const toolLabel =
+            item.tool === "grammar" ? "Grammar" :
+            item.tool === "plagiarism" ? "Plagiarism" :
+            item.tool === "ai" ? "AI Content" :
+            item.tool;
+          const snippet = (item.input_text || "").slice(0, 60).replace(/\s+/g, " ");
+          return `
+            <tr>
+              <td class="py-2 pr-2 align-top text-slate-300">${item.created_at}</td>
+              <td class="py-2 pr-2 align-top text-slate-200">${toolLabel}</td>
+              <td class="py-2 pr-2 align-top text-slate-300">${item.summary}</td>
+              <td class="py-2 pr-2 align-top text-slate-400">${snippet}${snippet.length === 60 ? "..." : ""}</td>
+            </tr>
+          `;
+        }).join("");
+
+        loading.classList.add("hidden");
+        table.classList.remove("hidden");
+      } catch (e) {
+        loading.textContent = "Failed to contact backend.";
+      }
+    }
+
+    loadHistory();
+  </script>
+</body>
+</html>

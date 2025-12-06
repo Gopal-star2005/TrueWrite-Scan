@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard – TrueWrite Scan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex flex-col">
+  <!-- Top bar -->
+  <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-20">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <!-- Logo + name -->
+      <div class="flex items-center gap-3">
+        <img src="logo.png" alt="TrueWrite Scan logo"
+            class="w-10 h-10 rounded-2xl border border-slate-700 object-cover" />
+        <div>
+          <p class="text-xl md:text-2xl font-extrabold tracking-tight">
+            <span class="bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-emerald-400 bg-clip-text text-transparent">
+              TrueWrite
+            </span>
+            <span class="text-slate-100"> Scan</span>
+          </p>
+          <p class="text-[11px] text-slate-400 uppercase tracking-[0.22em]">
+              Honest. Original. Authenticated
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="userName" class="text-xs text-slate-300"></span>
+        <a href="history.html"
+           class="text-xs px-3 py-1 rounded-full border border-slate-600 hover:bg-slate-800">
+          History
+        </a>
+        <button id="logoutBtn"
+                class="text-xs px-3 py-1 rounded-full border border-slate-600 hover:bg-slate-800">
+          Logout
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl mx-auto px-4 py-8 space-y-12">
+    <!-- About the website -->
+    <section class="grid md:grid-cols-[3fr,2fr] gap-8 items-center">
+      <div>
+        <h1 class="text-3xl md:text-4xl font-bold mb-3">
+          Write it once. <span class="text-indigo-400">Check it all.</span>
+        </h1>
+        <p class="text-sm md:text-base text-slate-300 mb-4">
+          TrueWrite Scan is your all-in-one writing assistant inspired by different platforms and alsp it is different. From spotting grammar mistakes to estimating plagiarism and and get a rough signal
+          of AI-generated content — all in one unified dashboard — right in your browser.
+        </p>
+        <ul class="text-sm text-slate-300 space-y-1 mb-2 list-disc list-inside">
+          <li>Check grammar for up to 1000 words in a single click.</li>
+          <li>Paste or upload text for plagiarism estimation.</li>
+          <li>Get a heuristic AI-content probability with clear summaries.</li>
+          <li>Download PDF reports for every scan.</li>
+        </ul>
+      </div>
+
+      <!-- Illustration side image -->
+      <div class="relative">
+        <div class="absolute inset-0 bg-gradient-to-tr from-indigo-500/30 via-purple-500/20 to-emerald-400/30 blur-3xl -z-10"></div>
+        <img
+          src="dashboard-main.png"
+          alt="TrueWrite Scan dashboard preview"
+          class="rounded-3xl border border-slate-800 shadow-2xl shadow-indigo-500/30"
+        />
+      </div>
+    </section>
+
+    <!-- Three tools (buttons + images) -->
+    <section class="space-y-4">
+      <h2 class="text-xl md:text-2xl font-semibold">Choose a tool</h2>
+
+      <!-- Grammar card -->
+      <a href="grammar.html"
+         class="group flex flex-col md:flex-row items-center gap-6 bg-slate-900/70 border border-slate-800 rounded-2xl p-5
+                hover:border-fuchsia-400 hover:-translate-y-1 hover:shadow-xl hover:shadow-fuchsia-500/30 transition">
+        <div class="flex-1">
+          <p class="text-xs uppercase tracking-wide text-fuchsia-300 mb-1">Tool 1</p>
+          <h3 class="text-lg md:text-xl font-semibold mb-1">Grammar Check</h3>
+          <p class="text-sm text-slate-300 mb-3">
+            Instantly highlight basic grammar, punctuation, and spelling issues for up to
+            <strong>1000 words</strong>. Perfect for assignments and quick edits.
+          </p>
+          <button
+            class="px-4 py-2 rounded-full bg-fuchsia-500 group-hover:bg-fuchsia-600 text-xs font-medium">
+            Scan Text →
+          </button>
+        </div>
+        <img
+          src="grammar.png"
+          alt="Grammar checker preview"
+          class="w-full md:w-72 rounded-xl border border-slate-700"
+        />
+      </a>
+
+      <!-- Plagiarism card -->
+            <!-- Plagiarism -->
+      <a href="plagiarism.html"
+         class="group flex flex-col md:flex-row items-center gap-6 bg-gradient-to-br from-emerald-500/20 via-slate-900 to-slate-900 border border-emerald-500/40 rounded-2xl p-5 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/30 transition">
+        
+        <!-- Image on LEFT -->
+        <img
+          src="Plagiarism2.png"
+          alt="Plagiarism checker preview"
+          class="w-full md:w-72 rounded-xl border border-slate-700 object-cover"
+        />
+
+        <!-- Text + button on RIGHT -->
+        <div class="flex-1">
+          <p class="text-xs uppercase tracking-wide text-emerald-300 mb-1">Tool 2</p>
+          <h3 class="text-lg md:text-xl font-semibold mb-1">Plagiarism Check</h3>
+          <p class="text-sm text-slate-200 mb-3">
+            Paste your text or upload a file and compare it against documents to get a real plagiarism percentage with a detailed <strong>PDF report</strong>.
+          </p>
+          <div class="mt-3 flex justify-end">
+            <button
+              class="px-4 py-2 rounded-full bg-emerald-500 group-hover:bg-emerald-600 text-xs font-medium">
+              Scan document →
+            </button>
+          </div>
+        </div>
+      </a>
+
+
+      <!-- AI Content card -->
+      <a href="ai-check.html"
+         class="group flex flex-col md:flex-row items-center gap-6 bg-slate-900/70 border border-slate-800 rounded-2xl p-5
+                hover:border-indigo-400 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/30 transition">
+        <div class="flex-1">
+          <p class="text-xs uppercase tracking-wide text-indigo-300 mb-1">Tool 3</p>
+          <h3 class="text-lg md:text-xl font-semibold mb-1">AI Content Check</h3>
+          <p class="text-sm text-slate-300 mb-3">
+            Analyze your writing using different models to estimate how likely it appears
+            AI-generated vs human-written, and save the result as a PDF report.
+          </p>
+          <button
+            class="px-4 py-2 rounded-full bg-indigo-500 group-hover:bg-indigo-600 text-xs font-medium">
+            Analyze AI Content →
+          </button>
+        </div>
+        <img
+          src="ai.png"
+          alt="AI content checker preview"
+          class="w-full md:w-72 rounded-xl border border-slate-700"
+        />
+      </a>
+    </section>
+
+    <!-- Reviews slider -->
+    <section class="mt-4">
+      <h2 class="text-xl md:text-2xl font-semibold mb-3">What users are saying</h2>
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 md:p-6 relative overflow-hidden">
+        <div id="reviewCard" class="transition-all duration-500">
+          <!-- Filled by JS -->
+        </div>
+
+        <div class="flex items-center justify-between mt-4">
+          <div id="reviewDots" class="flex gap-1.5"></div>
+          <div class="flex gap-2">
+            <button id="prevReview"
+                    class="w-8 h-8 rounded-full border border-slate-600 flex items-center justify-center text-xs hover:bg-slate-800">
+              ‹
+            </button>
+            <button id="nextReview"
+                    class="w-8 h-8 rounded-full border border-slate-600 flex items-center justify-center text-xs hover:bg-slate-800">
+              ›
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 mt-8">
+    <div class="max-w-6xl mx-auto px-4 py-4 text-[11px] text-slate-400 flex flex-col md:flex-row items-center justify-between gap-2">
+      <p>© 2025 TrueWrite Scan. All rights reserved.</p>
+      <p>Designed & developed by <span class="text-indigo-300 font-medium">Gopal Krushna Mahapatra</span>.</p>
+    </div>
+  </footer>
+
+  <script>
+  // Simple protection: if not “logged in”, redirect to login
+  if (!localStorage.getItem('truewriteUser')) {
+    window.location.href = 'login.html';
+  }
+
+  document.getElementById('logoutBtn').onclick = () => {
+    localStorage.removeItem('truewriteUser');
+    window.location.href = 'index.html';
+  };
+
+  // ------- Reviews slider with star ratings -------
+  const reviews = [
+    {
+      name: "Aarav S.",
+      role: "B.Tech Student",
+      text: "TrueWrite Scan makes it easy to quickly check my lab reports for basic errors before submitting.",
+      stars: 5
+    },
+    {
+      name: "Priya K.",
+      role: "Research Scholar",
+      text: "I love the clean dashboard. Switching between grammar, plagiarism, and AI checks feels effortless.",
+      stars: 5
+    },
+    {
+      name: "Rahul M.",
+      role: "Content Writer",
+      text: "The PDF reports are very handy when I want to keep track of changes and share results with my team.",
+      stars: 4
+    },
+    {
+      name: "Sneha R.",
+      role: "M.Sc. Student",
+      text: "Great for understanding how plagiarism and AI detectors roughly work under the hood.",
+      stars: 5
+    },
+    {
+      name: "Vikram J.",
+      role: "Developer",
+      text: "Perfect demo project to learn front-end + basic text processing. The UI looks super polished.",
+      stars: 4
+    },
+    {
+      name: "Ananya P.",
+      role: "Teacher",
+      text: "I show this tool to my students so they understand the importance of original writing.",
+      stars: 5
+    },
+    {
+      name: "Kunal D.",
+      role: "Freelance Writer",
+      text: "The grammar checker catches little issues that I tend to miss when I’m in a hurry.",
+      stars: 4
+    },
+    {
+      name: "Meera L.",
+      role: "College Student",
+      text: "Having grammar, plagiarism and AI content checkers in one place saves me a lot of time.",
+      stars: 5
+    },
+    {
+      name: "Siddharth G.",
+      role: "Tech Enthusiast",
+      text: "A nice example of how text tools can be built using only front-end technologies and JavaScript.",
+      stars: 4
+    },
+    {
+      name: "Riya S.",
+      role: "BCA Student",
+      text: "Very intuitive layout. Feels similar to popular tools like QuillBot but customised for learning.",
+      stars: 5
+    }
+  ];
+
+  let currentReview = 0;
+  const reviewCard = document.getElementById('reviewCard');
+  const reviewDots = document.getElementById('reviewDots');
+
+  function starRow(stars) {
+    let html = "";
+    for (let i = 0; i < 5; i++) {
+      html += `<span class="${i < stars ? 'text-yellow-400' : 'text-slate-600'} text-sm">★</span>`;
+    }
+    return html;
+  }
+
+  function renderReview() {
+    const r = reviews[currentReview];
+    reviewCard.innerHTML = `
+      <div class="flex items-center gap-2 mb-2">
+        ${starRow(r.stars)}
+      </div>
+      <p class="text-sm text-slate-200 mb-3">"${r.text}"</p>
+      <p class="text-sm font-semibold">${r.name}</p>
+      <p class="text-xs text-slate-400">${r.role}</p>
+    `;
+
+    reviewDots.innerHTML = reviews
+      .map(
+        (_, i) =>
+          `<span class="w-2 h-2 rounded-full ${
+            i === currentReview ? 'bg-indigo-400' : 'bg-slate-600'
+          }"></span>`
+      )
+      .join('');
+  }
+
+  function nextReview() {
+    currentReview = (currentReview + 1) % reviews.length;
+    renderReview();
+  }
+
+  function prevReview() {
+    currentReview = (currentReview - 1 + reviews.length) % reviews.length;
+    renderReview();
+  }
+
+  document.getElementById('nextReview').onclick = nextReview;
+  document.getElementById('prevReview').onclick = prevReview;
+
+  // Auto-slide every 5 seconds
+  let reviewTimer = setInterval(nextReview, 5000);
+  // Reset timer on manual click
+  document.getElementById('nextReview').addEventListener('click', () => {
+    clearInterval(reviewTimer);
+    reviewTimer = setInterval(nextReview, 5000);
+  });
+  document.getElementById('prevReview').addEventListener('click', () => {
+    clearInterval(reviewTimer);
+    reviewTimer = setInterval(nextReview, 5000);
+  });
+
+  renderReview();
+</script>
+</body>
+</html>

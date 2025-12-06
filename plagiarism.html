@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Plagiarism Check – TrueWrite Scan</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- jsPDF (no integrity to avoid local SRI issues) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-violet-950 text-white min-h-screen flex flex-col">
+  <main class="flex-1 max-w-6xl mx-auto px-4 py-8">
+    <!-- Top bar with logo -->
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-3">
+        <div>
+          <img src="logo.png" alt="TrueWrite Scan Logo" class="w-10 h-10 rounded-xl shadow-lg shadow-indigo-500/40">
+        </div>
+      <div>
+          <h1 class="text-2xl md:text-3xl font-extrabold">TrueWrite <span class="text-blue-400">Scan</span></h1>
+          <p class="text-[11px] text-slate-300 uppercase tracking-[0.25em]">
+            Plagiarism Checker
+          </p>
+        </div>
+      </div>
+      <a href="dashboard.html"
+         class="text-xs text-slate-200 px-3 py-1.5 rounded-full border border-slate-600/70 bg-slate-900/40 backdrop-blur hover:bg-slate-800/70 transition">
+        ← Back to dashboard
+      </a>
+    </div>
+
+    <!-- Tool navigation -->
+    <nav class="mb-6">
+      <div class="inline-flex items-center gap-1 rounded-full bg-slate-900/80 border border-slate-800 p-1 text-xs">
+        <a href="grammar.html"
+           class="px-3 py-1.5 rounded-full text-slate-300 hover:bg-slate-800">
+          Grammar
+        </a>
+        <a href="plagiarism.html"
+           class="px-3 py-1.5 rounded-full bg-blue-500 text-white font-medium shadow shadow-blue-500/40"
+           aria-current="page">
+          Plagiarism
+        </a>
+        <a href="ai-check.html"
+           class="px-3 py-1.5 rounded-full text-slate-300 hover:bg-slate-800">
+          AI Content
+        </a>
+      </div>
+    </nav>
+
+    <!-- Main checker grid -->
+    <div class="grid md:grid-cols-2 gap-6">
+        <!-- LEFT PANEL -->
+      <section class="rounded-3xl border border-white/10 bg-slate-900/40 backdrop-blur-xl shadow-2xl shadow-black/50 p-5 md:p-6 flex flex-col">
+        <header class="mb-4">
+          <h2 class="text-lg md:text-xl font-semibold">Analyze your content</h2>
+          <p class="text-xs text-slate-300 mt-1">
+            Paste text or drop a <span class="font-semibold">.txt / .pdf / .docx</span> file. This gives an idea of ​​how much Plagiarized content there is.
+          </p>
+        </header>
+        <!-- Drag & drop -->
+        <div id="dropZone" 
+            class="mb-3 border-2 border-dashed border-slate-600/80 rounded-2xl bg-slate-900/50 backdrop-blur-md px-4 py-3 text-xs flex items-center justify-between transition hover:border-blue-400/80 hover:bg-slate-900/70">
+          <div class="flex items-center gap-3">
+           <div class="w-8 h-8 rounded-full bg-slate-800/80 flex items-center justify-center">
+              <span class="text-lg">📂</span>
+            </div>
+            <div>
+              <div class="font-semibold text-sm">Drag & drop file</div>
+              <div class="text-xs text-slate-400">Supported: .txt, .pdf, .docx (max 15MB)</div>
+            </div>
+          </div>
+          <div class="text-right">
+            <label class="px-3 py-1 rounded-full border border-slate-600 cursor-pointer bg-slate-800/60 text-xs">
+              Browse <input id="fileInput" type="file" accept=".txt,.pdf,.docx" class="hidden" />
+            </label>
+            <div id="fileName" class="text-xs text-slate-400 mt-1 max-w-[160px] truncate"></div>
+          </div>
+        </div>
+
+        <div class="mt-3 text-xs text-slate-400">
+          Tip: .txt files preview locally; .pdf/.docx will be uploaded and parsed by the server.
+        </div>
+
+        <div class="mt-3 flex items-center justify-between gap-3">
+          <button id="pasteBtn"
+                  class="text-xs px-3 py-1 rounded-full border border-slate-600 hover:bg-slate-800">
+            Paste text
+          </button>
+          <span id="statusTiny" class="text-xs text-slate-400">Ready</span>
+        </div>
+
+        <textarea id="inputText" rows="12"
+                  class="w-full mt-3 p-3 bg-slate-950/60 border border-slate-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0487D9]
+                  placeholder="Paste text here or load a .txt file (preview)."></textarea>
+
+        <div class="mt-4 flex flex-wrap gap-2 items-center">
+          <button id="checkBtn"
+                  class="px-5 py-2 rounded-xl bg-[#0487D9] hover:bg-[#0487D9] text-sm font-medium flex items-center gap-2">
+            <svg id="spinner" class="hidden animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="white" stroke-opacity="0.25" stroke-width="4"></circle>
+              <path d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" fill="white" fill-opacity="0.8"></path>
+            </svg>
+            <span id="checkLabel">Check Plagiarism</span>
+          </button>
+
+          <button id="downloadBtn"
+                  class="px-5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-sm font-medium">
+            Download report as PDF
+          </button>
+        </div>
+      </section>
+
+      <!-- RIGHT: Result & Progress -->
+      <section class="p-5 rounded-3xl bg-slate-900/40 border border-white/5 backdrop-blur text-sm">
+        <h2 class="font-semibold text-lg mb-2">Result</h2>
+
+        <!-- Progress bar -->
+        <div class="h-2.5 w-full rounded-full bg-slate-800 overflow-hidden mb-2">
+          <div id="progressBar" class="h-full w-0 bg-[#0487D9] transition-all"></div>
+        </div>
+        <div id="progressText" class="text-xs text-slate-400 mb-3">Idle</div>
+
+        <!-- Big score line -->
+        <p id="score" class="text-lg font-bold mb-1 text-[#0487D9]">No scan yet.</p>
+
+        <!-- Gauge + risk badge -->
+        <div class="flex items-center gap-4 mb-4">
+          <div class="relative w-24 h-24">
+            <svg viewBox="0 0 100 100" class="w-24 h-24 transform -rotate-90">
+              <!-- background circle -->
+              <circle cx="50" cy="50" r="40"
+                      stroke="rgba(148, 163, 184, 0.35)"
+                      stroke-width="8"
+                      fill="none" />
+              <!-- progress circle -->
+              <circle id="gaugeCircle" cx="50" cy="50" r="40"
+                      stroke="rgb(59, 130, 246)"
+                      stroke-width="8"
+                      fill="none"
+                      stroke-linecap="round"
+                      stroke-dasharray="251.2"
+                      stroke-dashoffset="251.2" />
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span id="gaugeLabel" class="text-xs font-semibold text-slate-100">0%</span>
+            </div>
+          </div>
+
+          <div>
+            <span id="riskBadge"
+                  class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-200 border border-slate-600">
+              No risk yet
+            </span>
+            <p class="mt-1 text-[11px] text-slate-400">
+              Risk level updates after each scan based on plagiarism percentage.
+            </p>
+          </div>
+        </div>
+
+        <p id="summary" class="text-sm text-slate-200 mb-3">
+          Run a scan to see estimated plagiarism percentage based on the demo corpus.
+        </p>
+
+        <div class="text-xs text-slate-400 mb-3">
+          <ul class="list-disc list-inside space-y-1">
+            <li>Educational demo – not connected to real academic databases.</li>
+            <li>Backend uses TF-IDF and set-based similarity against local corpus files.</li>
+          </ul>
+        </div>
+
+        <h3 class="font-semibold text-sm mt-2 mb-1">Top matches in corpus</h3>
+        <div id="matches" class="mt-1 text-xs text-slate-300 space-y-2">
+          <!-- filled by JS -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Extra sections (unchanged UI text) -->
+    <section class="mt-10 space-y-4">
+      <h2 class="text-xl md:text-2xl font-semibold">Why choose this plagiarism checker?</h2>
+      <p class="text-sm text-slate-300">
+        TrueWrite Scan’s plagiarism page is built to help you understand how similarity checks work,
+        from input text to percentage score and PDF report.
+      </p>
+
+      <div class="grid md:grid-cols-3 gap-5 mt-3">
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-emerald-500/20 flex items-center justify-center">
+              <span class="text-lg">📊</span>
+            </div>
+            <p class="font-semibold text-sm">Clear percentage score</p>
+          </div>
+          <p class="text-xs text-slate-300">
+            See an easy-to-understand plagiarism percentage instead of raw technical metrics.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-indigo-500/20 flex items-center justify-center">
+              <span class="text-lg">🌐</span>
+            </div>
+            <p class="font-semibold text-sm">Backend similarity engine</p>
+          </div>
+          <p class="text-xs text-slate-300">
+            The backend uses TF-IDF and set-based similarity to compare your text with a demo corpus.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-fuchsia-500/20 flex items-center justify-center">
+              <span class="text-lg">📄</span>
+            </div>
+            <p class="font-semibold text-sm">Instant PDF reports</p>
+          </div>
+          <p class="text-xs text-slate-300">
+            Export a mini plagiarism report so you can attach it with your draft or keep it for records.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-10 space-y-4">
+      <h2 class="text-xl md:text-2xl font-semibold">Who can use this tool?</h2>
+      <p class="text-sm text-slate-300">
+        Anyone who wants a first originality check before using heavy enterprise tools.
+      </p>
+
+      <div class="grid md:grid-cols-3 gap-5 mt-3">
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-sky-500/20 flex items-center justify-center">
+              <span class="text-lg">🎓</span>
+            </div>
+            <p class="font-semibold text-sm">Students & project teams</p>
+          </div>
+          <p class="text-xs text-slate-300">
+            Check reports, abstracts, and essays for overlap with sample academic-style text.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-amber-500/20 flex items-center justify-center">
+              <span class="text-lg">👩‍🏫</span>
+            </div>
+            <p class="font-semibold text-sm">Educators</p>
+          </div>
+          <p class="text-xs text-slate-300">
+            Demonstrate the concept of similarity checking in class with a clear, visual UI.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-rose-500/20 flex items-center justify-center">
+              <span class="text-lg">✍️</span>
+            </div>
+            <p class="font-semibold text-sm">Bloggers & writers</p>
+          </div>
+          <p class="text-xs text-slate-300">
+            Quickly see if short articles look too similar to built-in reference styles.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-10 space-y-4">
+      <h2 class="text-xl md:text-2xl font-semibold">How does this plagiarism checker work?</h2>
+      <p class="text-sm text-slate-300">
+        The logic is intentionally simple and transparent so you can follow and later extend it with
+        more advanced databases or APIs.
+      </p>
+
+      <div class="grid md:grid-cols-3 gap-5 mt-3">
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-emerald-500/20 flex items-center justify-center">
+              <span class="text-lg">1️⃣</span>
+            </div>
+            <p class="font-semibold text-sm">Clean and vectorise</p>
+          </div>
+          <p class="text-xs text-slate-300">
+            Your text is cleaned and transformed into TF-IDF vectors on the server.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-indigo-500/20 flex items-center justify-center">
+              <span class="text-lg">2️⃣</span>
+            </div>
+            <p class="font-semibold text-sm">Compare with corpus</p>
+          </div>
+          <p class="text-xs text-slate-300">
+            The backend compares your text with stored documents using cosine and set-based similarity.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-fuchsia-500/20 flex items-center justify-center">
+              <span class="text-lg">3️⃣</span>
+            </div>
+            <p class="font-semibold text-sm">Return a percentage</p>
+          </div>
+          <p class="text-xs text-slate-300">
+            The highest overlap is converted into a simple percentage and returned to this page with top matches.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-12">
+      <h2 class="text-xl md:text-2xl font-semibold mb-3">Top reviews for this plagiarism tool</h2>
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 md:p-6 relative overflow-hidden">
+        <div id="reviewCard" class="transition-all duration-500"></div>
+
+        <div class="flex items-center justify-between mt-4">
+          <div id="reviewDots" class="flex gap-1.5"></div>
+          <div class="flex gap-2">
+            <button id="prevReview"
+                    class="w-8 h-8 rounded-full border border-slate-600 flex items-center justify-center text-xs hover:bg-slate-800">‹</button>
+            <button id="nextReview"
+                    class="w-8 h-8 rounded-full border border-slate-600 flex items-center justify-center text-xs hover:bg-slate-800">›</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 py-4 text-[11px] text-slate-400 flex flex-col md:flex-row items-center justify-between gap-2">
+      <p>© 2025 TrueWrite Scan. All rights reserved.</p>
+      <p>Designed & developed by <span class="text-blue-300 font-medium">Gopal Krushna Mahapatra</span>.</p>
+    </div>
+  </footer>
+
+  <!-- ===================== SCRIPTS ===================== -->
+  <script>
+    const BACKEND_URL = "http://localhost:8000";
+    const token = localStorage.getItem("truewriteToken");
+    const user = localStorage.getItem("truewriteUser");
+    if (!token || !user) {
+      window.location.href = "login.html";
+    }
+
+    // jsPDF helper
+    function getJsPDF() {
+      if (window.jspdf && window.jspdf.jsPDF) return window.jspdf.jsPDF;
+      if (window.jsPDF) return window.jsPDF;
+      alert("PDF library (jsPDF) did not load. Check your internet connection or CDN access.");
+      return null;
+    }
+
+    // Elements
+    const dropZone = document.getElementById("dropZone");
+    const fileInput = document.getElementById("fileInput");
+    const fileName = document.getElementById("fileName");
+    const textarea = document.getElementById("inputText");
+    const checkBtn = document.getElementById("checkBtn");
+    const spinner = document.getElementById("spinner");
+    const checkLabel = document.getElementById("checkLabel");
+    const statusTiny = document.getElementById("statusTiny");
+    const progressBar = document.getElementById("progressBar");
+    const progressText = document.getElementById("progressText");
+    const summaryP = document.getElementById("summary");
+    const matchesDiv = document.getElementById("matches");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const scoreP = document.getElementById("score");
+    const pasteBtn = document.getElementById("pasteBtn");
+
+    const gaugeCircle = document.getElementById("gaugeCircle");
+    const gaugeLabel = document.getElementById("gaugeLabel");
+    const riskBadge = document.getElementById("riskBadge");
+    const GAUGE_CIRCUMFERENCE = 251.2; // 2πr for r=40
+
+    let lastResult = null;
+    let progressTimer = null;
+
+    // Gauge & risk helpers
+    function updateGauge(percent) {
+      const p = Math.max(0, Math.min(100, Number(percent) || 0));
+      const offset = GAUGE_CIRCUMFERENCE * (1 - p / 100);
+      gaugeCircle.style.strokeDashoffset = offset;
+      gaugeLabel.textContent = p.toFixed(0) + "%";
+    }
+
+    function updateRiskBadge(percent) {
+      const p = Math.max(0, Math.min(100, Number(percent) || 0));
+      let label, extraClasses;
+
+      if (p <= 20) {
+        label = "Safe";
+        extraClasses = "bg-blue-500/20 text-blue-300 border border-blue-500/60";
+      } else if (p <= 50) {
+        label = "Medium risk";
+        extraClasses = "bg-amber-500/20 text-amber-300 border border-amber-500/60";
+      } else {
+        label = "High risk";
+        extraClasses = "bg-rose-500/20 text-rose-300 border border-rose-500/60";
+      }
+
+      riskBadge.className =
+        "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold " + extraClasses;
+      riskBadge.textContent = label;
+    }
+
+    // Loading & progress
+    function setLoading(on) {
+      if (on) {
+        spinner.classList.remove("hidden");
+        checkLabel.textContent = "Checking...";
+        checkBtn.disabled = true;
+        checkBtn.classList.add("opacity-80");
+        statusTiny.textContent = "Working...";
+        progressBar.style.width = "5%";
+        progressText.textContent = "Uploading/processing...";
+        progressTimer = setInterval(() => {
+          let cur = parseFloat(progressBar.style.width) || 5;
+          cur = Math.min(90, cur + Math.random() * 8);
+          progressBar.style.width = cur + "%";
+        }, 250);
+      } else {
+        spinner.classList.add("hidden");
+        checkLabel.textContent = "Check Plagiarism";
+        checkBtn.disabled = false;
+        checkBtn.classList.remove("opacity-80");
+        if (progressTimer) clearInterval(progressTimer);
+        progressBar.style.width = "100%";
+        progressText.textContent = "Done";
+        setTimeout(() => {
+          progressBar.style.width = "0%";
+          progressText.textContent = "Idle";
+        }, 700);
+      }
+    }
+
+    // Drag & drop + file handling
+    ["dragenter", "dragover"].forEach(e =>
+      dropZone.addEventListener(e, ev => {
+        ev.preventDefault();
+        dropZone.classList.add("ring-2", "ring-[#0487D9]");
+      })
+    );
+    ["dragleave", "drop"].forEach(e =>
+      dropZone.addEventListener(e, ev => {
+        ev.preventDefault();
+        dropZone.classList.remove("ring-2", "ring-[#0487D9]");
+      })
+    );
+
+    dropZone.addEventListener("drop", ev => {
+      ev.preventDefault();
+      const f = ev.dataTransfer.files[0];
+      if (!f) return;
+      fileInput.files = ev.dataTransfer.files;
+      fileName.textContent = f.name;
+      handleSelectedFile(f);
+    });
+
+    fileInput.addEventListener("change", ev => {
+      const f = ev.target.files[0];
+      if (!f) return;
+      fileName.textContent = f.name;
+      handleSelectedFile(f);
+    });
+
+    function handleSelectedFile(file) {
+      const fname = file.name || "file";
+      if (file.type === "text/plain" || fname.toLowerCase().endsWith(".txt")) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          textarea.value = reader.result;
+          statusTiny.textContent = `${fname} loaded for preview`;
+        };
+        reader.readAsText(file);
+      } else {
+        textarea.value = "";
+        statusTiny.textContent = `${fname} selected — will be uploaded and parsed on server when you click Check`;
+      }
+    }
+
+    // Paste button
+    pasteBtn.addEventListener("click", async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        textarea.value = text;
+        statusTiny.textContent = "Pasted from clipboard.";
+      } catch (err) {
+        alert("Clipboard access blocked by browser.");
+      }
+    });
+
+    // Backend API helpers
+    async function callPlagiarismText(text) {
+      const res = await fetch(`${BACKEND_URL}/api/plagiarism-check`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ text })
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || `Server responded ${res.status}`);
+      }
+      return res.json();
+    }
+
+    async function callPlagiarismFile(file) {
+      const form = new FormData();
+      form.append("file", file, file.name);
+      const res = await fetch(`${BACKEND_URL}/api/plagiarism-check-file`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` },
+        body: form
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || `Server responded ${res.status}`);
+      }
+      return res.json();
+    }
+
+    // Main plagiarism action
+    checkBtn.addEventListener("click", async () => {
+      const file = fileInput.files[0];
+      const text = (textarea.value || "").trim();
+
+      if (!file && !text) {
+        alert("Please paste text or select a file.");
+        return;
+      }
+
+      setLoading(true);
+      summaryP.textContent = "Checking...";
+      scoreP.textContent = "Scanning...";
+      matchesDiv.innerHTML = "";
+      lastResult = null;
+
+      try {
+        let data;
+        if (file && !(file.type === "text/plain" || file.name.toLowerCase().endsWith(".txt"))) {
+          data = await callPlagiarismFile(file);
+        } else {
+          const payloadText = text || (file ? await file.text() : "");
+          data = await callPlagiarismText(payloadText);
+        }
+
+        if (!data) throw new Error("Empty response from server");
+        if (data.plagiarism_percent === undefined) {
+          throw new Error(data.detail || data.error || "Unexpected response");
+        }
+
+        const percent = data.plagiarism_percent;
+        scoreP.textContent = `Estimated Plagiarism: ${percent}%`;
+        summaryP.textContent = data.summary || `Plagiarism estimate: ${percent}%`;
+
+        updateGauge(percent);
+        updateRiskBadge(percent);
+
+        if (data.matches && data.matches.length) {
+          matchesDiv.innerHTML = data.matches.map(m => `
+            <div class="p-2 rounded bg-slate-800/40 flex items-center justify-between gap-2">
+              <div>
+                <div class="font-semibold">${m.title}</div>
+                <div class="text-[11px] text-slate-400">Similarity score: ${m.score}%</div>
+              </div>
+            </div>
+          `).join("");
+        } else {
+          matchesDiv.innerHTML =
+            "<div class='text-xs text-slate-400'>No close matches found in the current demo corpus.</div>";
+        }
+
+        lastResult = {
+          input: text || (file ? "[uploaded file]" : ""),
+          result: data
+        };
+        statusTiny.textContent = "Done";
+      } catch (err) {
+        console.error(err);
+        summaryP.textContent = "Error: " + (err.message || err);
+        scoreP.textContent = "Scan failed.";
+        statusTiny.textContent = "Error";
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    // Download PDF report
+    downloadBtn.addEventListener("click", () => {
+      if (!lastResult) {
+        alert("Run a check first.");
+        return;
+      }
+
+      const jsPDF = getJsPDF();
+      if (!jsPDF) return;
+
+      const doc = new jsPDF({ unit: "pt", format: "a4" });
+      let y = 40;
+
+      doc.setFontSize(16);
+      doc.text("TrueWrite Scan — Plagiarism Report", 40, y); y += 22;
+
+      doc.setFontSize(11);
+      doc.text("Generated: " + new Date().toLocaleString(), 40, y); y += 18;
+      doc.text("User: " + (user || "N/A"), 40, y); y += 18;
+
+      const pr = lastResult.result.plagiarism_percent ?? "N/A";
+      doc.setFontSize(12);
+      doc.text(`Plagiarism: ${pr}%`, 40, y); y += 16;
+
+      if (lastResult.result.summary) {
+        doc.setFontSize(10);
+        const summaryLines = doc.splitTextToSize("Summary: " + lastResult.result.summary, 520);
+        doc.text(summaryLines, 40, y);
+        y += summaryLines.length * 12 + 10;
+      }
+
+      if (lastResult.result.matches && lastResult.result.matches.length) {
+        doc.setFontSize(11);
+        doc.text("Top matches:", 40, y); y += 14;
+        lastResult.result.matches.forEach(m => {
+          const line = `• ${m.title} — ${m.score}%`;
+          doc.text(line, 48, y);
+          y += 12;
+        });
+      }
+
+      y += 10;
+      doc.setFontSize(11);
+      doc.text("--- Original text (truncated) ---", 40, y); y += 16;
+      doc.setFontSize(9);
+      const raw = lastResult.input || "";
+      const truncated = raw.length > 3000 ? raw.slice(0, 3000) + "\n\n[TRUNCATED]" : raw;
+      const textLines = doc.splitTextToSize(truncated, 520);
+      doc.text(textLines, 40, y);
+
+      doc.save("plagiarism-report.pdf");
+    });
+
+    // Reviews slider
+    const reviews = [
+      {
+        name: "Aarav S.",
+        role: "B.Tech Student",
+        text: "Great for a quick originality check before using heavy tools like Turnitin.",
+        stars: 5
+      },
+      {
+        name: "Priya K.",
+        role: "Research Scholar",
+        text: "Helps me understand how similarity scores work in a simple, visible way.",
+        stars: 5
+      },
+      {
+        name: "Rahul M.",
+        role: "Content Writer",
+        text: "Nice to get an approximate plagiarism percentage while drafting blog posts.",
+        stars: 4
+      },
+      {
+        name: "Sneha R.",
+        role: "M.Sc. Student",
+        text: "Perfect educational example to show classmates how plagiarism detection is implemented.",
+        stars: 5
+      },
+      {
+        name: "Vikram J.",
+        role: "Developer",
+        text: "Clean UI and easy to tweak the logic for my own experiments.",
+        stars: 4
+      }
+    ];
+
+    let currentReview = 0;
+    const reviewCard = document.getElementById("reviewCard");
+    const reviewDots = document.getElementById("reviewDots");
+
+    function starRow(stars) {
+      let html = "";
+      for (let i = 0; i < 5; i++) {
+        html += `<span class="${i < stars ? "text-yellow-400" : "text-slate-600"} text-sm">★</span>`;
+      }
+      return html;
+    }
+
+    function renderReview() {
+      const r = reviews[currentReview];
+      reviewCard.innerHTML = `
+        <div class="flex items-center gap-2 mb-2">
+          ${starRow(r.stars)}
+        </div>
+        <p class="text-sm text-slate-200 mb-3">"${r.text}"</p>
+        <p class="text-sm font-semibold">${r.name}</p>
+        <p class="text-xs text-slate-400">${r.role}</p>
+      `;
+      reviewDots.innerHTML = reviews.map((_, i) =>
+        `<span class="w-2 h-2 rounded-full ${i === currentReview ? "bg-[#0487D9]" : "bg-slate-600"}"></span>`
+      ).join("");
+    }
+
+    function nextReview() {
+      currentReview = (currentReview + 1) % reviews.length;
+      renderReview();
+    }
+
+    function prevReview() {
+      currentReview = (currentReview - 1 + reviews.length) % reviews.length;
+      renderReview();
+    }
+
+    document.getElementById("nextReview").onclick = () => {
+      clearInterval(reviewTimer);
+      nextReview();
+      reviewTimer = setInterval(nextReview, 6000);
+    };
+    document.getElementById("prevReview").onclick = () => {
+      clearInterval(reviewTimer);
+      prevReview();
+      reviewTimer = setInterval(nextReview, 6000);
+    };
+
+    let reviewTimer = setInterval(nextReview, 6000);
+    renderReview();
+
+    // Initialise gauge/risk with 0
+    updateGauge(0);
+    updateRiskBadge(0);
+  </script>
+</body>
+</html>

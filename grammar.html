@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Grammar Check – TrueWrite Scan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- jsPDF (no integrity, to avoid SRI issues locally) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white min-h-screen flex flex-col">
+  <!-- Glow background -->
+  <div class="pointer-events-none fixed inset-0 opacity-40 blur-3xl"
+       style="background: radial-gradient(circle at 0% 0%, rgba(59,130,246,0.35), transparent 55%), radial-gradient(circle at 80% 80%, rgba(16,185,129,0.28), transparent 55%);">
+  </div>
+
+  <main class="relative flex-1 max-w-6xl mx-auto px-4 py-8 z-10">
+    <!-- Top bar -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-3">
+        <div>
+          <img src="logo.png" alt="TrueWrite Scan Logo" class="w-10 h-10 rounded-xl shadow-lg shadow-indigo-500/40">
+        </div>
+        <div>
+          <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">
+            TrueWrite <span class="text-emerald-300">Scan</span>
+          </h1>
+          <p class="text-[11px] text-slate-300 uppercase tracking-[0.25em]">
+            Grammar Rectifier
+          </p>
+        </div>
+      </div>
+      <a href="dashboard.html"
+         class="text-xs text-slate-200 px-3 py-1.5 rounded-full border border-slate-600/70 bg-slate-900/40 backdrop-blur hover:bg-slate-800/70 transition">
+        ← Back to dashboard
+      </a>
+    </div>
+
+    <!-- Tool navigation -->
+    <nav class="mb-6">
+      <div class="inline-flex items-center gap-1 rounded-full bg-slate-900/80 border border-slate-800 p-1 text-xs">
+        <a href="grammar.html"
+           class="px-3 py-1.5 rounded-full bg-emerald-500 text-white font-medium shadow shadow-emerald-500/40"
+           aria-current="page">
+          Grammar
+        </a>
+        <a href="plagiarism.html"
+           class="px-3 py-1.5 rounded-full text-slate-300 hover:bg-slate-800">
+          Plagiarism
+        </a>
+        <a href="ai-check.html"
+           class="px-3 py-1.5 rounded-full text-slate-300 hover:bg-slate-800">
+          AI Content
+        </a>
+      </div>
+    </nav>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <!-- LEFT: input -->
+      <section class="rounded-3xl border border-white/10 bg-slate-900/40 backdrop-blur-xl shadow-2xl shadow-black/50 p-5 md:p-6 flex flex-col">
+        <header class="mb-4">
+          <h2 class="text-lg md:text-xl font-semibold">Input text or upload file</h2>
+          <p class="text-xs text-slate-300 mt-1">
+            Large files are trimmed server-side for safety. Upload size limit is 15 MB.
+          </p>
+        </header>
+
+        <!-- Drag & drop -->
+        <div id="dropZone"
+             class="mb-3 border-2 border-dashed border-slate-600/80 rounded-2xl bg-slate-900/50 backdrop-blur-md px-4 py-3 text-xs flex items-center justify-between transition hover:border-emerald-400/80 hover:bg-slate-900/70">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-slate-800/80 flex items-center justify-center">
+              <span class="text-lg">📂</span>
+            </div>
+            <div>
+              <p class="font-medium text-slate-100">Drag & drop your file here</p>
+              <p class="text-[11px] text-slate-400">
+                Supported: .txt, .pdf, .docx (max 15MB)
+              </p>
+            </div>
+          </div>
+          <div class="flex flex-col items-end gap-1">
+            <label class="px-3 py-1 rounded-full border border-slate-500/80 text-[11px] cursor-pointer bg-slate-800/60 hover:bg-slate-700/80">
+              Browse
+              <input id="fileInput" type="file" accept=".txt,.pdf,.docx" class="hidden" />
+            </label>
+            <span id="fileName" class="text-[10px] text-slate-400 max-w-[150px] truncate"></span>
+          </div>
+        </div>
+
+        <div id="statusTiny" class="text-[11px] text-slate-400 mb-2">
+          Ready · No file selected
+        </div>
+
+        <!-- Paste / textarea -->
+        <div class="flex gap-2 items-center mb-1">
+          <button id="pasteBtn"
+                  class="text-[11px] px-3 py-1 rounded-full border border-slate-600/80 bg-slate-900/70 hover:bg-slate-800/90">
+            Paste text from clipboard
+          </button>
+          <span class="text-[11px] text-slate-500">or type directly below</span>
+        </div>
+
+        <!-- Word count -->
+        <div class="flex justify-end mb-2">
+          <span id="wordCount" class="text-[11px] text-slate-400">0 / 1000 words</span>
+        </div>
+
+        <textarea id="inputText" rows="10"
+                  class="flex-1 w-full rounded-2xl bg-slate-950/70 border border-slate-700/80 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/70 focus:border-emerald-500/60 placeholder:text-slate-500"
+                  placeholder="Paste your content here or use the drag-and-drop box above..."></textarea>
+
+        <!-- Buttons -->
+        <div class="mt-4 flex flex-wrap gap-2 items-center">
+          <button id="checkBtn"
+                  class="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-sm font-semibold shadow-lg shadow-emerald-500/40 flex items-center gap-2">
+            <svg id="spinner"
+                 class="hidden animate-spin h-4 w-4 text-white"
+                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10"
+                      stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+            <span id="checkLabel">Check Grammar</span>
+          </button>
+
+          <!-- Download report button: behavior from file 2 -->
+          <button id="downloadBtn"
+                  class="px-5 py-2 rounded-xl bg-slate-900/70 border border-slate-600/80 text-sm font-medium hover:bg-slate-800/90">
+            Download report as PDF
+          </button>
+        </div>
+      </section>
+
+      <!-- RIGHT: result -->
+      <section class="rounded-3xl border border-white/10 bg-slate-900/40 backdrop-blur-xl shadow-2xl shadow-black/50 p-5 md:p-6 flex flex-col text-sm">
+        <header class="mb-3">
+          <h2 class="text-lg font-semibold">Result</h2>
+          <p class="text-[11px] text-slate-400">
+            Corrected text and statistics appear here after each scan.
+          </p>
+        </header>
+
+        <!-- Progress bar -->
+        <div class="mb-3">
+          <div class="h-1.5 w-full rounded-full bg-slate-800/80 overflow-hidden">
+            <div id="progressBar" class="h-full w-0 bg-gradient-to-r from-emerald-400 via-teal-400 to-sky-400 transition-[width] duration-200 ease-out"></div>
+          </div>
+          <div id="progressText" class="text-[11px] text-slate-400 mt-1">Idle</div>
+        </div>
+
+        <div class="grid gap-3 mb-2">
+          <div class="flex flex-wrap gap-4 text-[12px] text-slate-200">
+            <div>Words analysed: <span id="statWords" class="font-semibold text-emerald-300">0</span></div>
+            <div>Corrections: <span id="statCorrections" class="font-semibold text-emerald-300">0</span></div>
+          </div>
+          <p id="summary" class="text-[13px] text-slate-200">
+            Run a check to see corrected text and a brief summary of edits.
+          </p>
+          <!-- Extra corrections info area from file 1 -->
+          <div id="corrections" class="text-[11px] text-slate-300"></div>
+        </div>
+
+                <div class="flex-1">
+          <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-3 flex flex-col h-full">
+            <p class="text-[11px] text-slate-400 mb-1">Corrected text</p>
+            <textarea id="correctedText"
+                      class="flex-1 w-full bg-transparent text-xs md:text-[13px] resize-none focus:outline-none min-h-[260px]"
+                      placeholder="Corrected version will appear here..." readonly></textarea>
+          </div>
+
+          <!-- Hidden original preview holder so JS still works, but nothing is shown -->
+          <div id="originalPreview" class="hidden"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ========= Info sections from file 1 ========= -->
+
+    <section class="mt-10 space-y-4">
+      <h2 class="text-xl md:text-2xl font-semibold">Why choose this tool?</h2>
+      <p class="text-sm text-slate-300">
+        Inspired by tools like QuillBot, this page gives you a simple, focused space to check
+        short pieces of writing quickly before you submit or share them.
+      </p>
+
+      <div class="grid md:grid-cols-3 gap-5 mt-3">
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-indigo-500/20 flex items-center justify-center">
+              <span class="text-lg">⚡</span>
+            </div>
+            <p class="font-semibold text-sm">Fast one-click review</p>
+          </div>
+          <p class="text-xs text-slate-300">
+            Paste, click, and instantly get a cleaner version of your text without any sign-up
+            or complicated options.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-emerald-500/20 flex items-center justify-center">
+              <span class="text-lg">🎯</span>
+            </div>
+            <p class="font-semibold text-sm">Focus on basics that matter</p>
+          </div>
+          <p class="text-xs text-slate-300">
+            Targets the most common issues students face: extra spaces, lowercase “i”,
+            sentence starts, and missing punctuation.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-fuchsia-500/20 flex items-center justify-center">
+              <span class="text-lg">📄</span>
+            </div>
+            <p class="font-semibold text-sm">Instant PDF summaries</p>
+          </div>
+          <p class="text-xs text-slate-300">
+            Export a quick PDF report for your records or to attach with your assignment
+            submissions.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-10 space-y-4">
+      <h2 class="text-xl md:text-2xl font-semibold">Who can use this tool?</h2>
+      <p class="text-sm text-slate-300">
+        This grammar checker is designed as a lightweight helper for anyone who wants a final
+        polish before sending or submitting text.
+      </p>
+
+      <div class="grid md:grid-cols-3 gap-5 mt-3">
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-sky-500/20 flex items-center justify-center">
+              <span class="text-lg">👨‍🎓</span>
+            </div>
+            <p class="font-semibold text-sm">Students</p>
+          </div>
+          <p class="text-xs text-slate-300">
+            Quickly check lab reports, assignments, mini-projects, and emails to faculty or
+            supervisors.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-amber-500/20 flex items-center justify-center">
+              <span class="text-lg">👩‍🏫</span>
+            </div>
+            <p class="font-semibold text-sm">Teachers & mentors</p>
+          </div>
+          <p class="text-xs text-slate-300">
+            Use it as a quick demo in class to show students how common grammar issues can be
+            auto-detected.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-rose-500/20 flex items-center justify-center">
+              <span class="text-lg">💼</span>
+            </div>
+            <p class="font-semibold text-sm">Professionals & creators</p>
+          </div>
+          <p class="text-xs text-slate-300">
+            Clean up short posts, descriptions, and emails before sharing them with clients,
+            teams, or on social media.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works (frontend-focused) from file 1 -->
+    <section class="mt-10 space-y-4">
+      <h2 class="text-xl md:text-2xl font-semibold">How does this work?</h2>
+      <p class="text-sm text-slate-300">
+        Behind the scenes, prefers a neural model (GECToR), then falls back to LanguageTool, and finally to a
+        lightweight heuristic that do the necessary corrections.
+      </p>
+
+      <div class="grid md:grid-cols-3 gap-5 mt-3">
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-indigo-500/20 flex items-center justify-center">
+              <span class="text-lg">1️⃣</span>
+            </div>
+            <p class="font-semibold text-sm">Paste & analyse</p>
+          </div>
+          <p class="text-xs text-slate-300">
+            You paste your text (up to ~1000 words). The tool counts words and prepares it for
+            analysis.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-emerald-500/20 flex items-center justify-center">
+              <span class="text-lg">2️⃣</span>
+            </div>
+            <p class="font-semibold text-sm">Apply smart rules and models</p>
+          </div>
+          <p class="text-xs text-slate-300">
+            GECToR model rewrites sentences word-by-word, focusing on grammar, agreement, and spelling.
+            JavaScript rules can fix double spaces, lowercase “i”, sentence capitalization, and
+            end punctuation. Then the text is sent to a neural grammar model on the server for deeper fixes.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-9 h-9 rounded-full bg-fuchsia-500/20 flex items-center justify-center">
+              <span class="text-lg">3️⃣</span>
+            </div>
+            <p class="font-semibold text-sm">Review & export</p>
+          </div>
+          <p class="text-xs text-slate-300">
+            You compare the original and corrected text, then optionally export a PDF summary
+            for future reference.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reviews slider from file 1 -->
+    <section class="mt-12">
+      <h2 class="text-xl md:text-2xl font-semibold mb-3">What users say about this grammar tool</h2>
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 md:p-6 relative overflow-hidden">
+        <div id="reviewCard" class="transition-all duration-500">
+          <!-- filled by JS -->
+        </div>
+
+        <div class="flex items-center justify-between mt-4">
+          <div id="reviewDots" class="flex gap-1.5"></div>
+          <div class="flex gap-2">
+            <button id="prevReview"
+                    class="w-8 h-8 rounded-full border border-slate-600 flex items-center justify-center text-xs hover:bg-slate-800">
+              ‹
+            </button>
+            <button id="nextReview"
+                    class="w-8 h-8 rounded-full border border-slate-600 flex items-center justify-center text-xs hover:bg-slate-800">
+              ›
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="relative border-t border-slate-800/80 bg-slate-950/70 backdrop-blur">
+    <div class="max-w-6xl mx-auto px-4 py-4 text-[11px] text-slate-400 flex flex-col md:flex-row items-center justify-between gap-2">
+      <p>© 2025 TrueWrite Scan. All rights reserved.</p>
+      <p>Designed & developed by <span class="text-emerald-300 font-medium">Gopal Krushna Mahapatra</span>.</p>
+    </div>
+  </footer>
+
+  <script>
+    const BACKEND_URL = "http://localhost:8000";
+    const token = localStorage.getItem("truewriteToken");
+    const user = localStorage.getItem("truewriteUser");
+    if (!token || !user) {
+      window.location.href = "login.html";
+    }
+
+    // jsPDF helper (from file 2)
+    function getJsPDF() {
+      if (window.jspdf && window.jspdf.jsPDF) return window.jspdf.jsPDF;
+      if (window.jsPDF) return window.jsPDF;
+      alert("PDF library (jsPDF) did not load. Check your internet connection or CDN access.");
+      return null;
+    }
+
+    // DOM refs (superset)
+    const dropZone = document.getElementById("dropZone");
+    const fileInput = document.getElementById("fileInput");
+    const fileNameSpan = document.getElementById("fileName");
+    const statusTiny = document.getElementById("statusTiny");
+    const pasteBtn = document.getElementById("pasteBtn");
+    const textarea = document.getElementById("inputText");
+    const checkBtn = document.getElementById("checkBtn");
+    const checkLabel = document.getElementById("checkLabel");
+    const spinner = document.getElementById("spinner");
+    const progressBar = document.getElementById("progressBar");
+    const progressText = document.getElementById("progressText");
+    const statWords = document.getElementById("statWords");
+    const statCorrections = document.getElementById("statCorrections");
+    const summaryEl = document.getElementById("summary");
+    const correctionsDiv = document.getElementById("corrections");
+    const correctedTextEl = document.getElementById("correctedText");
+    const originalPreview = document.getElementById("originalPreview");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const wordCountSpan = document.getElementById("wordCount");
+
+    let lastResult = null;
+    let progressTimer = null;
+
+    function setLoading(on) {
+      if (on) {
+        spinner.classList.remove("hidden");
+        checkLabel.textContent = "Checking...";
+        checkBtn.disabled = true;
+        checkBtn.classList.add("opacity-60", "cursor-not-allowed");
+
+        let pct = 0;
+        progressBar.style.width = "0%";
+        progressText.textContent = "Uploading / processing...";
+        progressTimer = setInterval(() => {
+          pct += Math.random() * 10;
+          if (pct > 90) pct = 90;
+          progressBar.style.width = pct + "%";
+        }, 200);
+      } else {
+        spinner.classList.add("hidden");
+        checkLabel.textContent = "Check Grammar";
+        checkBtn.disabled = false;
+        checkBtn.classList.remove("opacity-60", "cursor-not-allowed");
+        if (progressTimer) {
+          clearInterval(progressTimer);
+          progressTimer = null;
+        }
+        progressBar.style.width = "100%";
+        progressText.textContent = "Done";
+        setTimeout(() => {
+          progressBar.style.width = "0%";
+          progressText.textContent = "Idle";
+        }, 700);
+      }
+    }
+
+    // Word counting & 1000-word indicator (from file 1)
+    function countWords(text) {
+      if (!text || !text.trim()) return 0;
+      return text.trim().split(/\s+/).length;
+    }
+
+    function updateWordCount() {
+      const words = countWords(textarea.value);
+      if (wordCountSpan) {
+        wordCountSpan.textContent = `${words} / 1000 words`;
+      }
+      if (words > 1000) {
+        statusTiny.textContent = "Text longer than 1000 words — extra words will be ignored by the server.";
+      }
+    }
+
+    textarea.addEventListener("input", updateWordCount);
+
+    // Simple local heuristic rules (from file 1)
+    function applyLocalGrammarRules(rawText) {
+      let corrections = 0;
+      let text = rawText || "";
+
+      const beforeDoubleSpace = text;
+      text = text.replace(/\s{2,}/g, " ");
+      if (text !== beforeDoubleSpace) corrections++;
+
+      const beforeI = text;
+      text = text.replace(/\bi\b/g, "I");
+      if (text !== beforeI) corrections++;
+
+      const beforeSentence = text;
+      text = text.replace(/(^\s*\w|[.!?]\s+\w)/g, c => c.toUpperCase());
+      if (text !== beforeSentence) corrections++;
+
+      if (text.trim() && !/[.!?]\s*$/.test(text.trim())) {
+        text = text.trim() + ".";
+        corrections++;
+      }
+
+      return { corrected: text, corrections };
+    }
+
+    // Drag & drop (from file 2)
+    ["dragenter", "dragover"].forEach(evt => {
+      dropZone.addEventListener(evt, e => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.add("border-emerald-400/80", "bg-slate-900/80");
+      });
+    });
+
+    ["dragleave", "drop"].forEach(evt => {
+      dropZone.addEventListener(evt, e => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove("border-emerald-400/80", "bg-slate-900/80");
+      });
+    });
+
+    dropZone.addEventListener("drop", e => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (!files || !files.length) return;
+      const file = files[0];
+      fileInput.files = files;
+      handleFileSelected(file);
+    });
+
+    fileInput.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) {
+        fileNameSpan.textContent = "";
+        statusTiny.textContent = "Ready · No file selected";
+        textarea.value = "";
+        originalPreview.textContent = "";
+        updateWordCount();
+        return;
+      }
+      handleFileSelected(file);
+    });
+
+    function handleFileSelected(file) {
+      fileNameSpan.textContent = file.name;
+      const fname = file.name.toLowerCase();
+      if (file.type === "text/plain" || fname.endsWith(".txt")) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          textarea.value = reader.result;
+          statusTiny.textContent = `${file.name} loaded as text`;
+          originalPreview.textContent = textarea.value.slice(0, 1500);
+          updateWordCount();
+        };
+        reader.readAsText(file);
+      } else {
+        textarea.value = "";
+        originalPreview.textContent = "";
+        statusTiny.textContent = `${file.name} selected. Will be parsed on backend.`;
+        updateWordCount();
+      }
+    }
+
+    // Paste
+    pasteBtn.onclick = async () => {
+      try {
+        const txt = await navigator.clipboard.readText();
+        textarea.value = txt;
+        originalPreview.textContent = txt.slice(0, 1500);
+        statusTiny.textContent = "Text pasted from clipboard";
+        updateWordCount();
+      } catch {
+        alert("Clipboard access blocked by browser.");
+      }
+    };
+
+    // API calls (from file 2)
+    async function callGrammarText(text) {
+      const res = await fetch(`${BACKEND_URL}/api/grammar-check`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ text })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || data.error || "Server error");
+      return data;
+    }
+
+    async function callGrammarFile(file) {
+      const form = new FormData();
+      form.append("file", file, file.name);
+      const res = await fetch(`${BACKEND_URL}/api/grammar-check-file`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` },
+        body: form
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || data.error || "Server error");
+      return data;
+    }
+
+    // Main check: file 2 logic + file 1 fallback
+    checkBtn.onclick = async () => {
+      const text = textarea.value.trim();
+      const file = fileInput.files[0];
+
+      if (!text && !file) {
+        alert("Please paste text or upload a file first.");
+        return;
+      }
+
+      setLoading(true);
+      summaryEl.textContent = "Checking...";
+      correctionsDiv.textContent = "";
+      correctedTextEl.value = "";
+      statWords.textContent = "0";
+      statCorrections.textContent = "0";
+      lastResult = null;
+
+      // Local heuristic used only as fallback
+      const localWords = countWords(text);
+      const localTrimmedText = localWords > 1000
+        ? text.split(/\s+/).slice(0, 1000).join(" ")
+        : text;
+      const localRes = applyLocalGrammarRules(localTrimmedText);
+
+      try {
+        let data;
+        if (file && !(file.type === "text/plain" || file.name.toLowerCase().endsWith(".txt"))) {
+          data = await callGrammarFile(file);
+        } else {
+          const payloadText = text || (file ? await file.text() : "");
+          data = await callGrammarText(payloadText);
+        }
+
+        const words = data.original_words ?? localWords ?? 0;
+        const corrections = data.corrections ?? 0;
+        const corrected = data.corrected_text ?? localRes.corrected ?? "";
+        const summary = data.summary ?? "";
+
+        statWords.textContent = String(words);
+        statCorrections.textContent = String(corrections);
+        correctedTextEl.value = corrected;
+        summaryEl.textContent = summary || "Grammar check completed.";
+
+        correctionsDiv.innerHTML = `
+          <div>Corrections made (server): <strong>${corrections}</strong></div>
+        `;
+
+        if (!originalPreview.textContent) {
+          originalPreview.textContent = (textarea.value || "").slice(0, 1500);
+        }
+
+        lastResult = {
+          original: textarea.value || (file ? "[uploaded file]" : ""),
+          corrected,
+          words,
+          corrections,
+          summary
+        };
+        statusTiny.textContent = "Done";
+      } catch (err) {
+        console.error(err);
+        // Fallback to local heuristic result from file 1
+        const words = localWords;
+        const corrections = localRes.corrections;
+        const corrected = localRes.corrected;
+
+        statWords.textContent = String(words);
+        statCorrections.textContent = String(corrections);
+        correctedTextEl.value = corrected;
+        summaryEl.textContent =
+          "Server error — showing local heuristic corrections instead. " + (err.message || "");
+
+        correctionsDiv.innerHTML = `
+          <div class="text-xs text-amber-300">Server error: ${escapeHtml(err.message || String(err))}</div>
+          <div class="mt-2">Local heuristic corrections applied: <strong>${corrections}</strong></div>
+        `;
+
+        if (!originalPreview.textContent) {
+          originalPreview.textContent = (textarea.value || "").slice(0, 1500);
+        }
+
+        lastResult = {
+          original: textarea.value || (file ? "[uploaded file]" : ""),
+          corrected,
+          words,
+          corrections,
+          summary: "Local heuristic corrections only"
+        };
+        statusTiny.textContent = "Error (using local corrections)";
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // PDF download: logic from file 2
+    downloadBtn.onclick = () => {
+      if (!lastResult) {
+        alert("Run at least one grammar check before downloading a report.");
+        return;
+      }
+
+      const jsPDF = getJsPDF();
+      if (!jsPDF) return;
+
+      const doc = new jsPDF({ unit: "pt", format: "a4" });
+      let y = 40;
+
+      doc.setFontSize(16);
+      doc.text("TrueWrite Scan — Grammar Report", 40, y); y += 22;
+
+      doc.setFontSize(11);
+      doc.text("Generated: " + new Date().toLocaleString(), 40, y); y += 18;
+      doc.text("User: " + (user || "N/A"), 40, y); y += 18;
+
+      doc.setFontSize(12);
+      doc.text(`Words analysed: ${lastResult.words}`, 40, y); y += 16;
+      doc.text(`Corrections: ${lastResult.corrections}`, 40, y); y += 20;
+
+      if (lastResult.summary) {
+        doc.text("Summary:", 40, y); y += 16;
+        doc.setFontSize(10);
+        let lines = doc.splitTextToSize(lastResult.summary, 520);
+        doc.text(lines, 40, y);
+        y += lines.length * 12 + 10;
+      }
+
+      doc.setFontSize(11);
+      doc.text("--- Original text (truncated) ---", 40, y); y += 16;
+      doc.setFontSize(9);
+      const original = lastResult.original || "";
+      const originalTrunc = original.length > 2500 ? original.slice(0, 2500) + "\n\n[TRUNCATED]" : original;
+      let lines = doc.splitTextToSize(originalTrunc, 520);
+      doc.text(lines, 40, y);
+      y += lines.length * 10 + 12;
+
+      doc.setFontSize(11);
+      doc.text("--- Corrected text (truncated) ---", 40, y); y += 16;
+      doc.setFontSize(9);
+      const corrected = lastResult.corrected || "";
+      const correctedTrunc = corrected.length > 2500 ? corrected.slice(0, 2500) + "\n\n[TRUNCATED]" : corrected;
+      lines = doc.splitTextToSize(correctedTrunc, 520);
+      doc.text(lines, 40, y);
+
+      doc.save("truewrite-grammar-report.pdf");
+    };
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str).replace(/[&<>"'`]/g, s => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;", "`": "&#96;"
+      }[s]));
+    }
+
+    // ===== Reviews slider (from file 1) =====
+    const reviews = [
+      {
+        name: "Aarav S.",
+        role: "Final-year B.Tech student",
+        text: "I use this grammar page before every assignment submission. It quickly cleans up the most obvious mistakes.",
+        stars: 5
+      },
+      {
+        name: "Priya K.",
+        role: "M.Tech researcher",
+        text: "The corrected text + PDF report help me keep a record of changes when I work on my thesis chapters.",
+        stars: 5
+      },
+      {
+        name: "Rahul M.",
+        role: "Content creator",
+        text: "Simple, fast, no distractions. Perfect when I just want to sanity-check captions and short posts.",
+        stars: 4
+      },
+      {
+        name: "Sneha R.",
+        role: "English learner",
+        text: "Seeing how my sentences are automatically fixed is helping me understand grammar rules better.",
+        stars: 5
+      },
+      {
+        name: "Vikram J.",
+        role: "Developer",
+        text: "Nice example of a purely front-end grammar tool. The UI feels inspired by popular tools like QuillBot.",
+        stars: 4
+      }
+    ];
+
+    let currentReview = 0;
+    const reviewCard = document.getElementById("reviewCard");
+    const reviewDots = document.getElementById("reviewDots");
+
+    function createStarRow(stars) {
+      let html = "";
+      for (let i = 0; i < 5; i++) {
+        html += `<span class="${i < stars ? "text-yellow-400" : "text-slate-600"} text-sm">★</span>`;
+      }
+      return html;
+    }
+
+    function renderReview() {
+      const r = reviews[currentReview];
+      reviewCard.innerHTML = `
+        <div class="flex items-center gap-2 mb-2">
+          ${createStarRow(r.stars)}
+        </div>
+        <p class="text-sm text-slate-200 mb-3">"${r.text}"</p>
+        <p class="text-sm font-semibold">${r.name}</p>
+        <p class="text-xs text-slate-400">${r.role}</p>
+      `;
+      reviewDots.innerHTML = reviews.map((_, i) =>
+        `<span class="w-2 h-2 rounded-full ${i === currentReview ? "bg-emerald-400" : "bg-slate-600"}"></span>`
+      ).join("");
+    }
+
+    function nextReview() {
+      currentReview = (currentReview + 1) % reviews.length;
+      renderReview();
+    }
+
+    function prevReview() {
+      currentReview = (currentReview - 1 + reviews.length) % reviews.length;
+      renderReview();
+    }
+
+    document.getElementById("nextReview").addEventListener("click", () => {
+      clearInterval(reviewTimer);
+      nextReview();
+      reviewTimer = setInterval(nextReview, 6000);
+    });
+    document.getElementById("prevReview").addEventListener("click", () => {
+      clearInterval(reviewTimer);
+      prevReview();
+      reviewTimer = setInterval(nextReview, 6000);
+    });
+
+    let reviewTimer = setInterval(nextReview, 6000);
+    renderReview();
+
+    // Initial word count
+    updateWordCount();
+  </script>
+</body>
+</html>

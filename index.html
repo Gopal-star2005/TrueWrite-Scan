@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>TrueWrite Scan – Welcome</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex items-center justify-center">
+  <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-purple-500/10 to-emerald-500/20 blur-3xl -z-10"></div>
+
+  <div class="max-w-3xl w-full mx-4 text-center">
+    <!-- Logo + brand -->
+    <div class="flex items-center justify-center gap-3 mb-6">
+      <!-- 🔹 Your logo image here -->
+      <img
+        src="logo.png"
+        alt="TrueWrite Scan logo"
+        class="w-11 h-11 rounded-2xl border border-slate-700 object-cover shadow-lg shadow-indigo-500/40"
+      />
+      <div class="text-left">
+        <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight">
+          <span class="bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-emerald-400 bg-clip-text text-transparent">
+            TrueWrite
+          </span>
+          <span class="text-slate-100"> Scan</span>
+        </h1>
+        <p class="text-sm text-slate-300">
+          Honest. Original. Authenticated
+        </p>
+      </div>
+    </div>
+
+    <!-- Hero text -->
+    <h2 class="text-2xl md:text-3xl font-semibold mb-3">
+      Write with confidence. Check with precision.
+    </h2>
+    <p class="text-slate-300 max-w-xl mx-auto mb-8">
+      Securely scan your assignments, research papers, and articles for Grammar issues,
+      Plagiarism, and AI-generated content – all in a single dashboard.
+    </p>
+
+    <!-- Buttons -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+      <a href="signup.html"
+         class="px-6 py-3 rounded-full bg-indigo-500 hover:bg-indigo-600 transition shadow-lg shadow-indigo-500/30 font-medium">
+        Sign up (New users)
+      </a>
+      <a href="login.html"
+         class="px-6 py-3 rounded-full border border-slate-500 hover:border-white hover:bg-white/5 transition font-medium">
+        Login (Existing users)
+      </a>
+    </div>
+
+    <!-- Floating feature cards -->
+    <div class="grid md:grid-cols-3 gap-4">
+      <div class="bg-slate-900/60 rounded-2xl p-4 border border-slate-700/60 animate-[float_5s_ease-in-out_infinite]">
+        <h3 class="font-semibold mb-1">Grammar Check</h3>
+        <p class="text-xs text-slate-300">Fix spelling, punctuation & all type of grammatical errors.</p>
+      </div>
+      <div class="bg-slate-900/60 rounded-2xl p-4 border border-slate-700/60 animate-[float_6s_ease-in-out_infinite]">
+        <h3 class="font-semibold mb-1">Plagiarism Scan</h3>
+        <p class="text-xs text-slate-300">Compare your text against existing text.</p>
+      </div>
+      <div class="bg-slate-900/60 rounded-2xl p-4 border border-slate-700/60 animate-[float_7s_ease-in-out_infinite]">
+        <h3 class="font-semibold mb-1">AI Content Check</h3>
+        <p class="text-xs text-slate-300">Estimate whether text looks human-written.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
