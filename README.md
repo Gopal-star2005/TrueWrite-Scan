@@ -14,7 +14,7 @@ TrueWrite Scan is a full-stack AI application designed to enhance writing integr
 ### Frontend
 * **Framework:** Next.js 13+ (React)
 * **Styling:** Tailwind CSS
-* **Deployment:** Vercel
+* **Deployment:** Cloudfare Pages
 
 ### Backend
 * **Framework:** FastAPI (Python)
