@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Gopal-star2005/TrueWrite-Scan/main/assets/banner.svg" alt="TrueWrite Scan Banner" />
+</p>
+
 # 🛡️ TrueWrite Scan: AI-Powered Writing Assistant
 
 > **TrueWrite Scan** is a production-grade SaaS platform designed to analyze, validate, and enhance written content using advanced Natural Language Processing (NLP), Machine Learning, and transformer-based AI models.
@@ -19,6 +23,18 @@ The platform is engineered with **enterprise-level security practices**, **modul
 
 ---
 
+## 👤 About the Platform
+TrueWrite Scan is engineered to demonstrate **real-world AI SaaS architecture**, focusing on:
+
+- Secure, scalable API design  
+- Modular AI inference pipelines  
+- Document-level intelligence (PDF & DOCX)  
+- Production-ready deployment practices  
+
+All secrets, credentials, and keys are handled via **environment variables**, ensuring **security-by-design** and safe public hosting.
+
+---
+
 ## 🎯 Core Capabilities
 
 - 🧠 Transformer-based NLP analysis  
@@ -26,7 +42,8 @@ The platform is engineered with **enterprise-level security practices**, **modul
 - 📊 Semantic similarity and vector-based scoring  
 - 📄 PDF and DOCX document ingestion & processing  
 - 🔐 JWT-based authentication & secure APIs  
-- ⚡ High-performance FastAPI backend  
+- ⚡ High-performance FastAPI backend
+- 📑 Automated AI-generated evaluation reports  
 - 🌐 Cloud deployment with public inference access  
 
 ---
@@ -103,6 +120,16 @@ The platform is engineered with **enterprise-level security practices**, **modul
 - Encrypted password storage
 - Token-based access control
 - Safe file handling and validation
+
+---
+
+## 🎯 Use Cases
+- 🧑‍🎓 Academic writing validation
+- 🏢 Professional document review
+- ✍️ Content quality assessment
+- 🧪 NLP & AI research demonstrations
+- 📄 Document authenticity analysis
+- 🏫 Educational writing platforms
 
 ---
 
