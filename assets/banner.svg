@@ -60,13 +60,11 @@
           stroke-width="5"
           fill="none"
           filter="url(#glow)"/>
-
-  <image x="208" y="118"
-         width="184" height="184"
-         xlink:href="https://raw.githubusercontent.com/Gopal-star2005/TrueWrite-Scan/main/assets/images/logo.png"
-         clip-path="url(#logoClip)"
-         preserveAspectRatio="xMidYMid slice"/>
-
+     
+<image x="190" y="90"
+       width="140" height="140"
+       xlink:href="https://raw.githubusercontent.com/Gopal-star2005/TrueWrite-Scan/main/assets/images/logo.png"
+       preserveAspectRatio="xMidYMid meet"/>
   <!-- ===================== -->
   <!-- AI SIGNAL -->
   <!-- ===================== -->
