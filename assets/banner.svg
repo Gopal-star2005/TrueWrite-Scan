@@ -63,7 +63,7 @@
 
   <image x="208" y="118"
          width="184" height="184"
-         xlink:href="https://raw.githubusercontent.com/Gopal-star2005/TrueWrite-Scan/main/assets/logo.png"
+         xlink:href="https://raw.githubusercontent.com/Gopal-star2005/TrueWrite-Scan/main/assets/images/logo.png"
          clip-path="url(#logoClip)"
          preserveAspectRatio="xMidYMid slice"/>
 
