@@ -4,6 +4,14 @@
 
 # 🛡️ TrueWrite Scan: AI-Powered Writing Assistant
 
+![Status](https://img.shields.io/badge/status-active-success)
+![Backend](https://img.shields.io/badge/backend-FastAPI%20%7C%20Python-blue)
+![Frontend](https://img.shields.io/badge/frontend-HTML%20%7C%20Tailwind%20CSS%20%7C%20JavaScript-orange)
+![AI](https://img.shields.io/badge/AI-Transformers%20%7C%20PyTorch-purple)
+![Database](https://img.shields.io/badge/database-MongoDB%20%7C%20PostgreSQL%20%7C%20Supabase-green)
+![Deployment](https://img.shields.io/badge/deployment-Hugging%20Face-yellow)
+![License](https://img.shields.io/badge/license-Proprietary-red)
+
 > **TrueWrite Scan** is a production-grade SaaS platform designed to analyze, validate, and enhance written content using advanced Natural Language Processing (NLP), Machine Learning, and transformer-based AI models.
 
 It delivers **accurate writing assessment, grammar intelligence, semantic analysis, and document validation** through a secure, scalable, and modern cloud-native architecture.
