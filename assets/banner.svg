@@ -1,74 +1,111 @@
-<svg width="850" height="250" viewBox="0 0 850 250" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <defs>
-        <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style="stop-color:#0a0e1a;stop-opacity:1" />
-            <stop offset="50%" style="stop-color:#111827;stop-opacity:1" />
-            <stop offset="100%" style="stop-color:#0a0e1a;stop-opacity:1" />
-        </linearGradient>
+<svg width="1600" height="420" viewBox="0 0 1600 420"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink">
 
-        <linearGradient id="teal-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1" /> <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" /> </linearGradient>
-        
-        <linearGradient id="pen-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-             <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
-             <stop offset="100%" style="stop-color:#065f46;stop-opacity:1" />
-        </linearGradient>
+  <!-- ===================== -->
+  <!-- DEFINITIONS -->
+  <!-- ===================== -->
+  <defs>
+    <!-- Background -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#020617"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
 
-        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="4" result="coloredBlur" />
-            <feMerge>
-                <feMergeNode in="coloredBlur" />
-                <feMergeNode in="SourceGraphic" />
-            </feMerge>
-        </filter>
-        
-        <filter id="inner-glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-             <feMerge>
-                <feMergeNode in="coloredBlur" />
-                <feMergeNode in="SourceGraphic" />
-            </feMerge>
-        </filter>
-    </defs>
+    <!-- Accent -->
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
 
-    <rect width="850" height="250" rx="15" fill="url(#bg-gradient)" />
+    <!-- Glow -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="14" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
 
-    <g transform="translate(125, 125)">
-        
-        <circle cx="0" cy="0" r="100" stroke="url(#teal-gradient)" stroke-width="1" opacity="0.3" stroke-dasharray="20 10"/>
-        <circle cx="0" cy="0" r="110" stroke="url(#teal-gradient)" stroke-width="2" opacity="0.2" stroke-dasharray="50 20" transform="rotate(45)"/>
-       
-        <g filter="url(#glow)">
-             <path d="M -85 0 A 85 85 0 0 1 0 -85" stroke="url(#teal-gradient)" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.8"/>
-            <path d="M 85 0 A 85 85 0 0 1 0 85" stroke="url(#teal-gradient)" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.8" transform="rotate(180)"/>
-            <path d="M -60 -60 A 85 85 0 0 1 60 60" stroke="url(#teal-gradient)" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/>
-            
-            <circle cx="-85" cy="0" r="4" fill="#22d3ee"/>
-            <circle cx="0" cy="-85" r="4" fill="#10b981"/>
-            <circle cx="60" cy="60" r="3" fill="#22d3ee"/>
-            <circle cx="-40" cy="80" r="3" fill="#10b981"/>
-        </g>
+    <!-- Halo -->
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#020617" stop-opacity="0"/>
+    </radialGradient>
 
-        <circle cx="0" cy="0" r="75" fill="#0a0e1a" stroke="url(#teal-gradient)" stroke-width="2"/>
+    <!-- Logo Clip -->
+    <clipPath id="logoClip">
+      <circle cx="300" cy="210" r="92"/>
+    </clipPath>
+  </defs>
 
-        <g transform="translate(-35, -35) scale(0.8)">
-            <path d="M0 100 L30 50 L60 100 L30 130 L0 100 Z" fill="white"/>
-            <path d="M30 130 L30 80" stroke="#0a0e1a" stroke-width="3"/>
-            <circle cx="30" cy="90" r="4" fill="#0a0e1a"/>
-            
-            <path d="M30 50 L70 -10 L110 20 L70 80 L30 50" fill="url(#pen-gradient)"/>
-            <path d="M35 45 L75 -15 L85 -5 L45 55 Z" fill="#22d3ee" opacity="0.5"/> <rect x="65" y="65" width="15" height="25" transform="rotate(-37 72.5 77.5)" fill="#065f46"/> <g filter="url(#inner-glow)" transform="translate(70, 60)">
-                <path d="M0 20 L10 20 L15 0 L25 40 L35 10 L45 30 L55 20 L70 20" stroke="#22d3ee" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            </g>
-        </g>
-    </g>
+  <!-- ===================== -->
+  <!-- BACKGROUND -->
+  <!-- ===================== -->
+  <rect width="1600" height="420" fill="url(#bg)"/>
 
-    <g transform="translate(280, 110)">
-        <text font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="800" font-size="60" fill="white">
-            TrueWrite <tspan fill="#22d3ee">Scan</tspan>
-        </text>
-        <text x="5" y="50" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="400" font-size="24" fill="#9ca3af">
-            AI-Powered Writing Assistant
-        </text>
-    </g>
+  <!-- Subtle grid -->
+  <g opacity="0.05">
+    <path d="M0 80H1600M0 160H1600M0 240H1600M0 320H1600" stroke="#ffffff"/>
+    <path d="M200 0V420M400 0V420M600 0V420M800 0V420M1000 0V420M1200 0V420M1400 0V420" stroke="#ffffff"/>
+  </g>
+
+  <!-- ===================== -->
+  <!-- LOGO AREA -->
+  <!-- ===================== -->
+  <circle cx="300" cy="210" r="150" fill="url(#halo)"/>
+
+  <circle cx="300" cy="210" r="120"
+          stroke="url(#accent)"
+          stroke-width="5"
+          fill="none"
+          filter="url(#glow)"/>
+
+  <image x="208" y="118"
+         width="184" height="184"
+         xlink:href="https://raw.githubusercontent.com/Gopal-star2005/TrueWrite-Scan/main/assets/logo.png"
+         clip-path="url(#logoClip)"
+         preserveAspectRatio="xMidYMid slice"/>
+
+  <!-- ===================== -->
+  <!-- AI SIGNAL -->
+  <!-- ===================== -->
+  <path d="M460 210
+           C490 210 500 165 530 165
+           C560 165 570 255 600 255
+           C630 255 640 210 670 210
+           C700 210 710 190 740 190"
+        stroke="url(#accent)"
+        stroke-width="4"
+        fill="none"
+        filter="url(#glow)"/>
+
+  <!-- ===================== -->
+  <!-- TEXT -->
+  <!-- ===================== -->
+  <text x="780" y="175"
+        font-size="64"
+        font-weight="700"
+        fill="#ffffff"
+        font-family="Inter, Segoe UI, Arial, sans-serif">
+    TrueWrite Scan
+  </text>
+
+  <text x="780" y="225"
+        font-size="28"
+        fill="#94a3b8"
+        font-family="Inter, Segoe UI, Arial, sans-serif">
+    AI-Powered Writting Assistant
+  </text>
+
+  <rect x="780" y="245" width="560" height="4"
+        rx="2" fill="url(#accent)"/>
+
+  <text x="780" y="295"
+        font-size="20"
+        fill="#64748b"
+        font-family="Inter, Segoe UI, Arial, sans-serif">
+    Secure • Intelligent • Production-Grade SaaS Platform
+  </text>
+
 </svg>
