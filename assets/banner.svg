@@ -25,44 +25,38 @@
   <!-- Main background -->
   <rect width="1200" height="300" fill="url(#bgGradient)"/>
   
-  <!-- Subtle wave overlay for AI texture -->
+  <!-- Subtle wave overlay -->
   <rect width="1200" height="100" y="200" fill="url(#wavePattern)" opacity="0.4"/>
   
-  <!-- Decorative AI elements (scan lines, nodes) - positioned symmetrically -->
+  <!-- Decorative AI elements -->
   <g opacity="0.6">
-    <!-- Left side nodes -->
     <circle cx="150" cy="80" r="8" fill="#60a5fa"/>
     <circle cx="250" cy="60" r="6" fill="#93c5fd"/>
-    <line x1="150" y1="80" x2="250" y2="60" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/>
-    
-    <!-- Right side nodes (symmetric) -->
     <circle cx="950" cy="80" r="8" fill="#60a5fa"/>
     <circle cx="1050" cy="60" r="6" fill="#93c5fd"/>
+    <line x1="150" y1="80" x2="250" y2="60" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/>
     <line x1="950" y1="80" x2="1050" y2="60" stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round"/>
-    
-    <!-- Center scan line effect -->
     <line x1="900" y1="50" x2="1100" y2="250" stroke="#e0f2fe" stroke-width="1" stroke-linecap="round">
       <animate attributeName="opacity" values="0.2;1;0.2" dur="3s" repeatCount="indefinite"/>
     </line>
   </g>
   
-  <!-- Main Title: TrueWrite Scan - PERFECTLY CENTERED -->
-  <text x="600" y="140" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" 
+  <!-- Main Title: TrueWrite Scan - PROPERLY POSITIONED (FIXED) -->
+  <text x="600" y="145" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" 
         font-size="68" font-weight="900" fill="#ffffff" filter="url(#glow)" 
-        text-anchor="middle" dominant-baseline="middle">TrueWrite</text>
+        text-anchor="middle" dominant-baseline="middle">
+    TrueWrite
+    <tspan fill="#fbbf24" font-weight="900" dx="10"> Scan</tspan>
+  </text>
   
-  <text x="600" y="140" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" 
-        font-size="68" font-weight="900" fill="#fbbf24" filter="url(#glow)" 
-        text-anchor="middle" dominant-baseline="middle" dy="0 0.02em">Scan</text>
-  
-  <!-- Subtitle - Perfectly centered below -->
+  <!-- Subtitle -->
   <text x="600" y="195" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" 
         font-size="26" font-weight="500" fill="#e0f2fe" text-anchor="middle" 
         letter-spacing="0.8" dominant-baseline="middle">
     AI Powered Writing Assistant
   </text>
   
-  <!-- CTA Button - Perfectly centered -->
+  <!-- CTA Button -->
   <g transform="translate(460, 235)">
     <rect rx="50" ry="50" width="280" height="55" fill="#fbbf24" stroke="#f59e0b" stroke-width="2"/>
     <text x="140" y="38" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" 
@@ -72,6 +66,6 @@
     </text>
   </g>
   
-  <!-- Subtle shine effect - centered -->
+  <!-- Shine effect -->
   <ellipse cx="600" cy="50" rx="450" ry="90" fill="#ffffff" opacity="0.08"/>
 </svg>
