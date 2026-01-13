@@ -43,24 +43,24 @@
     </line>
   </g>
   
-  <!-- Main Title: TrueWrite Scan (FIXED - continuous flow, no overlap) -->
-  <text x="80" y="140" font-family="system-ui, -apple-system, sans-serif" font-size="64" 
-        font-weight="800" fill="#ffffff" filter="url(#glow)" text-anchor="start">
+  <!-- Main Title: TrueWrite Scan (CENTERED) -->
+  <text x="600" y="140" font-family="system-ui, -apple-system, sans-serif" font-size="64" 
+        font-weight="800" fill="#ffffff" filter="url(#glow)" text-anchor="middle">
     TrueWrite
   </text>
-  <text x="435" y="140" font-family="system-ui, -apple-system, sans-serif" font-size="64" 
-        font-weight="800" fill="#fbbf24" filter="url(#glow)" text-anchor="start">
-    Scan
+  <text x="600" y="140" font-family="system-ui, -apple-system, sans-serif" font-size="64" 
+        font-weight="800" fill="#fbbf24" filter="url(#glow)" text-anchor="middle">
+    <tspan dx="-75"> </tspan><tspan>Scan</tspan>
   </text>
   
-  <!-- Subtitle -->
-  <text x="80" y="195" font-family="system-ui, -apple-system, sans-serif" font-size="28" 
-        font-weight="500" fill="#e0f2fe" text-anchor="start" letter-spacing="0.5">
+  <!-- Subtitle (CENTERED) -->
+  <text x="600" y="195" font-family="system-ui, -apple-system, sans-serif" font-size="28" 
+        font-weight="500" fill="#e0f2fe" text-anchor="middle" letter-spacing="0.5">
     AI Powered Writing Assistant
   </text>
   
-  <!-- CTA Button -->
-  <g transform="translate(80, 230)">
+  <!-- CTA Button (CENTERED) -->
+  <g transform="translate(460, 230)">
     <rect rx="50" ry="50" width="280" height="55" fill="#fbbf24" stroke="#f59e0b" stroke-width="2"/>
     <text x="140" y="38" font-family="system-ui, -apple-system, sans-serif" font-size="22" 
           font-weight="700" fill="#1e3a8a" text-anchor="middle" dominant-baseline="middle">
