@@ -1,0 +1,30 @@
+NOTICE
+
+TrueWrite Scan™ is a proprietary Software-as-a-Service (SaaS) platform developed
+and owned by Gopal Krushna Mahapatra.
+
+All intellectual property rights related to:
+- backend source code
+- frontend code
+- AI / ML models
+- document processing logic
+- system architecture
+- images, icons, logos, and branding
+- documentation and written materials
+
+are fully reserved.
+
+This repository or deployment does NOT grant any license, whether implied or explicit.
+
+Any reference, fork, clone, deployment, or reuse of this Software or its assets
+without prior written permission is unauthorized and prohibited.
+
+Third-party libraries used within the system remain the property of their respective
+owners and are governed by their own licenses. Their inclusion does NOT grant
+redistribution rights to this Software.
+
+TrueWrite Scan™ is intended for demonstration, evaluation, or authorized usage only.
+
+Unauthorized use may lead to legal action.
+
+© 2026 Gopal Krushna Mahapatra. All rights reserved.
